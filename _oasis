@@ -1,0 +1,18 @@
+OASISFormat: 0.4
+Name:        gpr-model-vis
+Version:     0.1
+License:     MIT
+LicenseFile: LICENSE.txt
+Authors:     Carmelo Piccione
+Synopsis:    Utilities to plot gpr data models in OCaml
+BuildTools:  ocamlbuild
+Plugins: META (0.4), DevFiles (0.4)
+
+Library "gpr_model_vis"
+  Pack:               true
+  Build:              true
+  Path:               src
+  Modules:            Feature, Sampler, Gpr_model
+  BuildDepends:       threads, containers, gpr, gen, plplot, containers, ppx_deriving, ppx_deriving.enum
+
+AlphaFeatures : ocamlbuild_more_args
