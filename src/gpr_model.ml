@@ -197,10 +197,14 @@ let read_model model_file : Model.t =
   In_channel.close ic;
   model
 
-module Make(F:Feature.S) =
+module Uniform_sampler(F:Feature.S) =
 struct
-module Default_sampler = Sampler.Uniform(F)
-let eval ?sampler args =
+  module Default_sampler = Sampler.Uniform(F)
+  let create args =
+   Default_sampler.create ~trials:
+     (Option.value ~default:Sampler.default_trials args.Args.samples) ()
+end
+let eval (sampler:Sampler.t) args : Lacaml_D.Mat.t =
  let { Args.model_file; with_stddev; predictive} = args in
   let
     {
@@ -209,10 +213,6 @@ let eval ?sampler args =
       inducing_points; coeffs; co_variance_coeffs
     } = read_model model_file
   in
-  let sampler = match sampler with 
-    | Some s -> s
-    | None -> Default_sampler.create
-      ~trials:(Option.value ~default:Sampler.default_trials args.Args.samples) () in
   let big_dim = Vec.dim input_stddevs in
   let inputs = read_test_samples sampler big_dim in
   let n_inputs = Mat.dim2 inputs in
@@ -233,9 +233,15 @@ let eval ?sampler args =
       FIC.Co_variance_predictor.calc kernel inducing_points co_variance_coeffs
     in
     let vars = FIC.Variances.calc co_variance_predictor ~sigma2 inputs in
-    let vars = FIC.Variances.get ~predictive vars in
-    Vec.iteri (fun i pre_mean ->
+    let vars = FIC.Variances.get ~predictive vars in failwith("nyi")
+    (*Vec.iteri (fun i pre_mean ->
       let mean = renorm_mean pre_mean in
-      printf "%f,%f\n" mean (sqrt vars.{i})) means
+      printf "%f,%f\n" mean (sqrt vars.{i})) means *)
   else Vec.iter (fun mean -> printf "%f\n" (renorm_mean mean)) means
-end
+
+let uniform_eval (module F: Feature.S) args =
+  let module Uni = Uniform_sampler(F) in
+  let sampler = Uni.create args in
+  eval sampler args
+
+

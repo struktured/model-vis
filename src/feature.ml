@@ -15,7 +15,7 @@ end
 module Enum_feature(Enum:
 sig
   type t [@@deriving enum]
-  val to_string : t-> string
+  val to_string : t -> string
   val of_string : string -> t option
   val domain : t -> [`Range of float * float | `Points of float list]
 end) : S with type t = Enum.t =
@@ -30,4 +30,3 @@ struct
       Array.get arr i |> CCOpt.return
   | _ -> None
 end
-
