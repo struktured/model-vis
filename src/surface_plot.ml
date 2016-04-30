@@ -103,13 +103,6 @@ let create
   (* Initialize plplot *)
   plinit ();
 
-  (* Set up transformation function *)
-  let tr =
-    [|
-      2.0 /. float_of_int (nx - 1); 0.0; -1.0;
-      0.0; 2.0 /. float_of_int (ny-1); -1.0;
-    |]
-  in
 
   (* Set up data arrays *)
   let z = Array.make_matrix nx ny 0.0 in
@@ -124,12 +117,6 @@ let create
   done;
 
   let zmin, zmax = f2mnmx z in
-  let clevel =
-    Array.init ns (
-      fun i ->
-        zmin +. (zmax -. zmin) *. (float_of_int i +. 0.5) /. float_of_int ns
-    )
-  in
   let shedge =
     Array.init (ns + 1) (
       fun i ->
@@ -137,27 +124,6 @@ let create
     )
   in
 
-  (* Set up coordinate grids *)
-  let xg1 = Array.make nx 0.0 in
-  let yg1 = Array.make ny 0.0 in
-  let xg2 = Array.make_matrix nx ny 0.0 in
-  let yg2 = Array.make_matrix nx ny 0.0 in
-
-  for i = 0 to nx - 1 do
-    for j = 0 to ny - 1 do
-      let x, y = mypltr (float_of_int i) (float_of_int j) tr in
-
-      let argx = x *. pi /. 2.0 in
-      let argy = y *. pi /. 2.0 in
-      let distort = 0.4 in
-
-      xg1.(i) <- x +. distort *. cos argx;
-      yg1.(j) <- y -. distort *. cos argy;
-
-      xg2.(i).(j) <- x +. distort *. cos argx *. cos argy;
-      yg2.(i).(j) <- y -. distort *. cos argx *. cos argy;
-    done
-  done;
 
   (* Plot using identity transform *)
   pladv 0;

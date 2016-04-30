@@ -1,3 +1,4 @@
+open Core.Std
 module type S =
 sig
   type t
@@ -10,15 +11,22 @@ sig
   val of_string : string -> t option
 
   val domain : t -> [`Range of float * float | `Points of float list]
+  val min : t -> float
+  val max : t -> float
+
+  val sub_array : t list -> 'a array -> 'a array
 end
 
-module Enum_feature(Enum:
+
+module type Enum_S =
 sig
   type t [@@deriving enum]
   val to_string : t -> string
   val of_string : string -> t option
   val domain : t -> [`Range of float * float | `Points of float list]
-end) : S with type t = Enum.t =
+end
+
+module Enum_feature(Enum:Enum_S) : S with type t = Enum.t =
 struct
   include Enum
   let all = Gen.int_range min max
@@ -29,4 +37,16 @@ struct
     function i when i < Array.length arr ->
       Array.get arr i |> CCOpt.return
   | _ -> None
+  let min t = match domain t with
+   | `Range (l, _) -> l
+   | `Points [] -> Float.infinity
+   | `Points p -> List.sort Float.compare p |> List.hd_exn
+  let max t = match domain t with
+   | `Range (_, r) -> r
+   | `Points [] -> Float.neg_infinity
+   | `Points p -> List.sort (fun a b -> Float.compare b a) p |> List.hd_exn
+
+  let sub_array features arr =
+    Array.filter_mapi arr ~f:(fun i v -> if List.exists ~f:(fun f -> all.(i) = f) features then Some v else None)
+
 end
