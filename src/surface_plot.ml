@@ -76,8 +76,15 @@ let f2mnmx f =
 (*--------------------------------------------------------------------------*\
  * Does several shade plots using different coordinate mappings.
 \*--------------------------------------------------------------------------*)
-module Make(Features:Feature.S) = struct
-let create () =
+module Make(F:Feature.S) =
+struct
+let create
+    ?(device="png")
+    ?title
+    ~(feature1:F.t)
+    ~(feature2:F.t)
+    ~(output:F.t)
+    ~(data:Sampler.t) =
   let fill_width = 2.0 in
   let cont_color = 0 in
   let cont_width = 0.0 in
@@ -87,11 +94,12 @@ let create () =
 
   (* Load color palettes *)
   plspal0 "cmap0_black_on_white.pal";
-  plspal1 "cmap1_gray.pal" true;
+  plspal1 "cmap1_blue_yellow.pal" true;
 
   (* Reduce colors in cmap 0 so that cmap 1 is useful on a 16-color display *)
   plscmap0n 3;
 
+  plsdev device;
   (* Initialize plplot *)
   plinit ();
 
@@ -165,152 +173,14 @@ let create () =
   plcol0 1;
   plbox "bcnst" 0.0 0 "bcnstv" 0.0 0;
   plcol0 2;
-  pllab "distance" "altitude" "Bogon density";
-
-  (* Plot using 1d coordinate transform *)
-
-  (* Load color palettes *)
-  plspal0 "cmap0_black_on_white.pal";
-  plspal1 "cmap1_blue_yellow.pal" true;
-
-  pladv 0;
-  plvpor 0.1 0.9 0.1 0.9;
-  plwind (-1.0) 1.0 (-1.0) 1.0;
-
-  plpsty 0;
-
-  plset_pltr (pltr1 xg1 yg1);
-  plshades z (-1.0) 1.0 (-1.0) 1.0 shedge fill_width cont_color cont_width true;
-
-  colorbar shedge;
-
-  plcol0 1;
-  plbox "bcnst" 0.0 0 "bcnstv" 0.0 0;
-  plcol0 2;
-  pllab "distance" "altitude" "Bogon density";
-
-  (* Plot using 2d coordinate transform *)
-
-  (* Load color palettes *)
-  plspal0 "cmap0_black_on_white.pal";
-  plspal1 "cmap1_blue_red.pal" true;
-
-  pladv 0;
-  plvpor 0.1 0.9 0.1 0.9;
-  plwind (-1.0) 1.0 (-1.0) 1.0;
-
-  plpsty 0;
-
-  plset_pltr (pltr2 xg2 yg2);
-  plshades
-    z (-1.0) 1.0 (-1.0) 1.0 shedge fill_width cont_color cont_width false;
-
-  colorbar shedge;
-
-  plcol0 1;
-  plbox "bcnst" 0.0 0 "bcnstv" 0.0 0;
-  plcol0 2;
-  plcont w 1 nx 1 ny clevel;
-
-  pllab "distance" "altitude" "Bogon density, with streamlines";
-
-  (* Plot using 2d coordinate transform *)
-
-  (* Load color palettes *)
-  plspal0 "";
-  plspal1 "" true;
-
-  pladv 0;
-  plvpor 0.1 0.9 0.1 0.9;
-  plwind (-1.0) 1.0 (-1.0) 1.0;
-
-  plpsty 0;
-
-  plshades z (-1.0) 1.0 (-1.) 1.0 shedge fill_width 2 3.0 false;
-
-  colorbar ~color:(`index 2) ~contour:(`index 2, 3.0) shedge;
-
-  plcol0 1;
-  plbox "bcnst" 0.0 0 "bcnstv" 0.0 0;
-  plcol0 2;
-
-  pllab "distance" "altitude" "Bogon density";
-
-  (* Note this exclusion API will probably change. *)
-
-  (* Plot using 2d coordinate transform and exclusion*)
-  if exclude then (
-    pladv 0;
-    plvpor 0.1 0.9 0.1 0.9;
-    plwind (-1.0) 1.0 (-1.0) 1.0;
-
-    plpsty 0;
-
-    plset_defined zdefined;
-    plshades
-      z (-1.0) 1.0 (-1.0) 1.0 shedge fill_width cont_color cont_width false;
-
-    colorbar shedge;
-    plunset_defined ();
-
-    plcol0 1;
-    plbox "bcnst" 0.0 0 "bcnstv" 0.0 0;
-
-    pllab "distance" "altitude" "Bogon density with exclusion";
-  );
-  (* Example with polar coordinates. *)
-
-  (* Load colour palettes*)
-  plspal0 "cmap0_black_on_white.pal";
-  plspal1 "cmap1_gray.pal" true;
-
-  pladv 0;
-  plvpor 0.1 0.9 0.1 0.9;
-  plwind (-1.0) 1.0 (-1.0) 1.0;
-  plpsty 0;
-
-  (* Build new coordinate matrices. *)
-  for i = 0 to nx - 1 do
-    let r = float_of_int i /. float_of_int (nx - 1) in
-    for j = 0 to ny - 1 do
-      let t = (2.0 *. pi /. (float_of_int ny -. 1.0)) *. float_of_int j in
-      xg2.(i).(j) <- r *. cos t;
-      yg2.(i).(j) <- r *. sin t;
-      z.(i).(j) <- exp (~-.r *. r) *. cos (5.0 *. pi *. r) *. cos (5.0 *. t);
-    done
-  done;
-
-  (* Need a new shedge to go along with the new data set. *)
-  let zmin, zmax = f2mnmx z in
-
-  let shedge =
-    Array.init (ns + 1) (
-      fun i ->
-        zmin +. (zmax -. zmin) *. float_of_int i /. float_of_int ns
-    )
-  in
-
-  (*  Now we can shade the interior region. *)
-  plshades
-    z (-1.0) 1.0 (-1.0) 1.0 shedge fill_width cont_color cont_width false;
-
-  colorbar shedge;
-
-  (* Now we can draw the perimeter.  (If do before, shade stuff may overlap.) *)
-  let px = Array.make perimeterpts 0.0 in
-  let py = Array.make perimeterpts 0.0 in
-  for i = 0 to perimeterpts - 1 do
-    let t = (2.0 *. pi /. float_of_int (perimeterpts - 1)) *. float_of_int i in
-    px.(i) <- cos t;
-    py.(i) <- sin t;
-  done;
-  plcol0 1;
-  plline px py;
-
-  (* And label the plot.*)
-  plcol0 2;
-  pllab "" "" "Tokamak Bogon Instability";
-
+  let feature1_axis_text = F.to_string feature1 in
+  let feature2_axis_text = F.to_string feature2 in
+  let title = match title with
+    | Some t -> t
+    | None -> let output_text = F.to_string output in
+        Printf.sprintf "%s (%s vs. %s)"
+          feature1_axis_text feature2_axis_text output_text in
+  pllab feature1_axis_text feature2_axis_text title;
   (* Clean up *)
   plend ();
   ()

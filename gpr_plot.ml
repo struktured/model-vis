@@ -1,6 +1,7 @@
 #!/usr/bin/env utop
 #require "gen"
 #require "csv"
+#require "core"
 open Core.Std
 
 module Args = struct
