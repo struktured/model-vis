@@ -12,7 +12,7 @@ Library "gpr_model_vis"
   Pack:               true
   Build:              true
   Path:               src
-  Modules:            Feature, Stat_feature, Sampler, Omega, Gpr_model
-  BuildDepends:       threads, containers, gpr, gen, plplot, containers, ppx_deriving, ppx_deriving.enum
+  Modules:            Feature, Stat_feature, Sampler, Data_sort, Omega, Gpr_model
+  BuildDepends:       threads, containers, gpr, gen, plplot, containers, ppx_deriving, ppx_deriving.enum, ppx_deriving.show, ppx_deriving.ord
 
 AlphaFeatures : ocamlbuild_more_args

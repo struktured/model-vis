@@ -1,8 +1,9 @@
 # OASIS_START
-# DO NOT EDIT (digest: 0ed34e9b1c1fae37c1310545c07bc97a)
+# DO NOT EDIT (digest: 556a4f3952e5325fa7ea68363bbf8792)
 Feature
 Stat_feature
 Sampler
+Data_sort
 Omega
 Gpr_model
 # OASIS_STOP

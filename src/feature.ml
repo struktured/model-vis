@@ -15,6 +15,10 @@ sig
   val max : t -> float
 
   val sub_array : t list -> 'a array -> 'a array
+
+  val to_int : t -> int
+
+  val of_int : int -> t option
 end
 
 
@@ -49,4 +53,6 @@ struct
   let sub_array features arr =
     Array.filter_mapi arr ~f:(fun i v -> if List.exists ~f:(fun f -> all.(i) = f) features then Some v else None)
 
+  let to_int = to_enum
+  let of_int = of_enum
 end

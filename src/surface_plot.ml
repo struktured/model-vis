@@ -40,22 +40,9 @@ let pi = atan 1.0 *. 4.0
 (* Fundamental settings.  See notes[] for more info. *)
 
 let ns = 20             (* Default number of shade levels *)
-let nx = 35             (* Default number of data points in x *)
-let ny = 46             (* Default number of data points in y *)
-let exclude = false     (* By default do not plot a page illustrating
-                           exclusion. *)
 
 (* polar plot data *)
 let perimeterpts = 100
-
-(* Transformation function *)
-let mypltr x y tr =
-  tr.(0) *. x +. tr.(1) *. y +. tr.(2),
-  tr.(3) *. x +. tr.(4) *. y +. tr.(5)
-
-let zdefined x y =
-  let z = sqrt (x *. x +. y *. y) in
-  if z < 0.4 || z > 0.6 then 1 else 0
 
 (*--------------------------------------------------------------------------*\
  * f2mnmx
@@ -73,18 +60,16 @@ let f2mnmx f =
   done;
   !fmin, !fmax
 
-(*--------------------------------------------------------------------------*\
- * Does several shade plots using different coordinate mappings.
-\*--------------------------------------------------------------------------*)
 module Make(F:Feature.S) =
 struct
+module F_compare = Data_sort.Feature_compare(F)
 let create
     ?(device="png")
     ?title
     ~(feature1:F.t)
     ~(feature2:F.t)
     ~(output:F.t)
-    ~(data:Sampler.t) =
+    ~(sampler:Sampler.t) =
   let fill_width = 2.0 in
   let cont_color = 0 in
   let cont_width = 0.0 in
@@ -103,19 +88,11 @@ let create
   (* Initialize plplot *)
   plinit ();
 
-
-  (* Set up data arrays *)
-  let z = Array.make_matrix nx ny 0.0 in
-  let w = Array.make_matrix nx ny 0.0 in
-  for i = 0 to nx - 1 do
-    let x = float_of_int (i - (nx / 2)) /. float_of_int (nx / 2) in
-    for j = 0 to ny - 1 do
-      let y = float_of_int (j - (ny / 2)) /. float_of_int (ny / 2) -. 1.0 in
-      z.(i).(j) <- -. sin (7.0 *. x) *. cos (7.0 *. y) +. x *. x -. y *. y;
-      w.(i).(j) <- -. cos (7.0 *. x) *. sin (7.0 *. y) +. 2.0 *. x *. y;
-    done
-  done;
-
+  let raw_data = Gen.map (F.sub_array [feature1;feature2;output]) sampler
+    |> Data_sort.sort_floats |> Gen.to_array in
+  let num_samples = Array.length raw_data in
+  let z = Array.make_matrix num_samples num_samples 0.0 in
+  (*let z = Gen.sort ~cmp:(F_compare.with_exclusions ?cmp:None ~to_exclude:[output]) sampler |> Gen.to_array in*)
   let zmin, zmax = f2mnmx z in
   let shedge =
     Array.init (ns + 1) (
