@@ -204,7 +204,10 @@ struct
    Default_sampler.create ~trials:
      (Option.value ~default:Sampler.default_trials args.Args.samples) ()
 end
-let eval (sampler:Sampler.t) args : Lacaml_D.Mat.t =
+
+module Make(F:Feature.S) = struct
+module F_with_stats = Stat_feature.With_inputs(F)
+let eval (sampler:Sampler.t) args : Sampler.t =
  let { Args.model_file; with_stddev; predictive} = args in
   let
     {
@@ -214,18 +217,18 @@ let eval (sampler:Sampler.t) args : Lacaml_D.Mat.t =
     } = read_model model_file
   in
   let big_dim = Vec.dim input_stddevs in
-  let inputs = read_test_samples sampler big_dim in
-  let n_inputs = Mat.dim2 inputs in
+  let raw_inputs = read_test_samples sampler big_dim in
+  let n_inputs = Mat.dim2 raw_inputs in
   for i = 1 to big_dim do
     let mean = input_means.{i} in
     let stddev = input_stddevs.{i} in
     for j = 1 to n_inputs do
-      inputs.{i, j} <- (inputs.{i, j} -. mean) /. stddev;
+      raw_inputs.{i, j} <- (raw_inputs.{i, j} -. mean) /. stddev;
     done;
   done;
   let mean_predictor = FIC.Mean_predictor.calc inducing_points ~coeffs in
   let inducing = FIC.Inducing.calc kernel inducing_points in
-  let inputs = FIC.Inputs.calc inputs inducing in
+  let inputs = FIC.Inputs.calc raw_inputs inducing in
   let means = FIC.Means.get (FIC.Means.calc mean_predictor inputs) in
   let renorm_mean mean = mean +. target_mean in
   if with_stddev then
@@ -237,11 +240,19 @@ let eval (sampler:Sampler.t) args : Lacaml_D.Mat.t =
     (*Vec.iteri (fun i pre_mean ->
       let mean = renorm_mean pre_mean in
       printf "%f,%f\n" mean (sqrt vars.{i})) means *)
-  else Vec.iter (fun mean -> printf "%f\n" (renorm_mean mean)) means
+  else 
+    let data_array = Mat.to_array raw_inputs in
+    let gen : Sampler.t = Gen.of_array data_array in
+    Gen.map2 (fun (arr:float array) mean -> 
+        Array.concat [arr; [|renorm_mean mean|]]) gen
+      (Gen.of_array (Vec.to_array means))
+    (*Vec.iter (fun mean -> printf "%f\n" (renorm_mean mean)) means*)
+end
 
+(*
 let uniform_eval (module F: Feature.S) args =
   let module Uni = Uniform_sampler(F) in
   let sampler = Uni.create args in
   eval sampler args
 
-
+*)

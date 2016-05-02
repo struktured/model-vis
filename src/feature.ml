@@ -21,7 +21,6 @@ sig
   val of_int : int -> t option
 end
 
-
 module type Enum_S =
 sig
   type t [@@deriving enum]
@@ -56,3 +55,21 @@ struct
   let to_int = to_enum
   let of_int = of_enum
 end
+
+module Generic_features(C: sig val count : int end) : S = struct  
+  module E : Enum_S = struct
+    type t = int
+    let min = 0 
+    let max = C.count
+    let to_enum t = t
+    let of_enum i = if i < max then Some i else None
+    let to_string i = Printf.sprintf "Feature %d" i
+    let of_string s = String.split ~on:' ' s |> 
+                      function | ["Feature"; i_str] -> Some (Int.of_string i_str)
+                               | _ -> None
+    let domain _ = `Range (Float.neg_infinity, Float.infinity)
+  end
+  module Enum = Enum_feature(E)
+  include Enum
+end
+
