@@ -13,10 +13,12 @@ let _avg_output ?(dist=fun x y -> (exp (x -. y))**2.0) ~(points:Sampler.t) ~(dat
 
 
 type box = {minx:float;maxx:float;miny:float;maxy:float}
-
 let with_inc ?dist ?inc ~(data:float array array) =
-  let {minx;miny;maxx;maxy} as box = failwith("nyi") in
-  let inc = match inc with Some inc -> inc | None -> log (maxx +. maxy) in
+  let {minx;miny;maxx;maxy} as box =
+    let [|maxx;maxy|] = Column.max (Gen.of_array data) in
+    let [|minx;miny|] = Column.min (Gen.of_array data) in
+    {minx;miny;maxx;maxy} in
+  let inc = match inc with Some inc -> inc | None -> max 0.00001 (log (Float.abs (maxx +. maxy))) in
   let dimx = max 1 (Float.to_int (Float.abs (maxx -. minx) /. inc)) in
   let dimy = max 1 (Float.to_int (Float.abs (maxy -. miny) /. inc)) in
   (*let slope = Float.of_int dimx /. Float.of_int dimy in*)
@@ -29,9 +31,3 @@ let with_inc ?dist ?inc ~(data:float array array) =
     done
   done;
   z,box
-
-
-
-
-
-
