@@ -231,22 +231,22 @@ let eval (sampler:Sampler.t) args : Sampler.t =
   let inputs = FIC.Inputs.calc raw_inputs inducing in
   let means = FIC.Means.get (FIC.Means.calc mean_predictor inputs) in
   let renorm_mean mean = mean +. target_mean in
+  let data_array = Mat.to_array raw_inputs in
+  let gen : Sampler.t = Gen.of_array data_array in
   if with_stddev then
     let co_variance_predictor =
       FIC.Co_variance_predictor.calc kernel inducing_points co_variance_coeffs
     in
     let vars = FIC.Variances.calc co_variance_predictor ~sigma2 inputs in
-    let vars = FIC.Variances.get ~predictive vars in failwith("nyi")
-    (*Vec.iteri (fun i pre_mean ->
-      let mean = renorm_mean pre_mean in
-      printf "%f,%f\n" mean (sqrt vars.{i})) means *)
-  else 
-    let data_array = Mat.to_array raw_inputs in
-    let gen : Sampler.t = Gen.of_array data_array in
-    Gen.map2 (fun (arr:float array) mean -> 
+    let vars = FIC.Variances.get ~predictive vars in
+    let cnt = ref 0 in
+    Gen.map (fun (arr:float array) ->
+      let i = !cnt in cnt := !cnt + 1;
+      Array.concat [arr; [|renorm_mean means.{i};sqrt vars.{i}|]]) gen
+  else
+   Gen.map2 (fun (arr:float array) mean ->
         Array.concat [arr; [|renorm_mean mean|]]) gen
       (Gen.of_array (Vec.to_array means))
-    (*Vec.iter (fun mean -> printf "%f\n" (renorm_mean mean)) means*)
 end
 
 (*
