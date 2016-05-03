@@ -1,3 +1,4 @@
 PKG core gpr plplot containers ppx_deriving gen ppx_deriving.enum ppx_deriving.show ppx_deriving.ord
 S src
+S test
 B _build/**

@@ -64,11 +64,14 @@ module Make(F:Feature.S) =
 struct
 module F_compare = Data_sort.Feature_compare(F)
 let create
+    ?dist
+    ?inc
     ?(device="png")
     ?title
     ~(feature1:F.t)
     ~(feature2:F.t)
     ~(output:F.t)
+    ?(stddev:F.t option)
     ~(sampler:Sampler.t) =
   let fill_width = 2.0 in
   let cont_color = 0 in
@@ -87,12 +90,13 @@ let create
   plsdev device;
   (* Initialize plplot *)
   plinit ();
-
-  let raw_data = Gen.map (F.sub_array [feature1;feature2;output]) sampler
+  let raw_data : float array array = sampler
     |> Data_sort.sort_floats |> Gen.to_array in
-  let num_samples = Array.length raw_data in
-  let z = Array.make_matrix num_samples num_samples 0.0 in
-  (*let z = Gen.sort ~cmp:(F_compare.with_exclusions ?cmp:None ~to_exclude:[output]) sampler |> Gen.to_array in*)
+  let open Interpolater in
+  let {z;_} = with_inc ~x_col:(F.to_int feature1) ~y_col:(F.to_int feature2) ~z_col:(F.to_int output) 
+    ?dist ?inc ~data:raw_data in
+  (*let xyz_data : float array array = Gen.map (F.sub_array [feature1;feature2;output]) sampler*)
+(*    |> Data_sort.sort_floats |> Gen.to_array in *)
   let zmin, zmax = f2mnmx z in
   let shedge =
     Array.init (ns + 1) (
