@@ -1,13 +1,13 @@
 # OASIS_START
-# DO NOT EDIT (digest: 130ddbb805e741a419ebeea658cb866f)
+# DO NOT EDIT (digest: ef6c13546615b6d0beec8cc4db8482f9)
 version = "0.1"
-description = "Utilities to plot gpr data models in OCaml"
+description = "Plot, visualize, and analyze data models in OCaml"
 requires =
 "threads containers gpr gen plplot containers ppx_deriving ppx_deriving.enum ppx_deriving.show ppx_deriving.ord"
-archive(byte) = "gpr_model_vis.cma"
-archive(byte, plugin) = "gpr_model_vis.cma"
-archive(native) = "gpr_model_vis.cmxa"
-archive(native, plugin) = "gpr_model_vis.cmxs"
-exists_if = "gpr_model_vis.cma"
+archive(byte) = "model_vis.cma"
+archive(byte, plugin) = "model_vis.cma"
+archive(native) = "model_vis.cmxa"
+archive(native, plugin) = "model_vis.cmxs"
+exists_if = "model_vis.cma"
 # OASIS_STOP
 

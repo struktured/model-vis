@@ -1,14 +1,14 @@
 OASISFormat: 0.4
-Name:        gpr-model-vis
+Name:        model-vis
 Version:     0.1
 License:     MIT
 LicenseFile: LICENSE.txt
 Authors:     Carmelo Piccione
-Synopsis:    Utilities to plot gpr data models in OCaml
+Synopsis:    Plot, visualize, and analyze data models in OCaml
 BuildTools:  ocamlbuild
 Plugins: META (0.4), DevFiles (0.4)
 
-Library "gpr_model_vis"
+Library "model_vis"
   Pack:               true
   Build:              true
   Path:               src
