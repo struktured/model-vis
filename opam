@@ -8,7 +8,7 @@ dev-repo: "git://github.com/struktured/model-vis.git#master"
 bug-reports: "https://github.com/struktured/model-vis/issues"
 
 build: [
-  ["./configure" "--%{gpr:enable}%-gpr"]
+  ["./configure" "--%{gpr:enable}%-gpr" "--enable-test"]
   [make "-j2"]
 ]
 

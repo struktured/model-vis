@@ -44,7 +44,7 @@ Library "gpr-support"
 Library "test-core"
   Pack:               true
   Build$:             flag(all) || flag(test)
-  Install$:           flag(alll) || flag(test)
+  Install$:           flag(all) || flag(test)
   Path:               src/test
   Modules:            Gaussian_plot
   BuildDepends:       model-vis, oml
