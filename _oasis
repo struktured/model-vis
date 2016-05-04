@@ -1,4 +1,5 @@
 OASISFormat: 0.4
+OCamlVersion: >= 4.0.0
 Name:        model-vis
 Version:     0.1
 License:     MIT
@@ -7,12 +8,34 @@ Authors:     Carmelo Piccione
 Synopsis:    Plot, visualize, and analyze data models in OCaml
 BuildTools:  ocamlbuild
 Plugins: META (0.4), DevFiles (0.4)
+XDevFilesEnableMakefile: false
 
-Library "model_vis"
+
+Flag all
+  Description: build and install everything
+  Default: false
+
+Flag gpr
+  Default$: flag(all)
+  Description: Enable gaussian process regression support
+
+Library "model-vis"
   Pack:               true
   Build:              true
-  Path:               src
-  Modules:            Vector, Feature, Stat_feature, Sampler, Column, Data_sort, Omega, Gpr_model, Interpolater, Surface_plot
-  BuildDepends:       threads, containers, gpr, gen, plplot, containers, ppx_deriving, ppx_deriving.enum, ppx_deriving.show, ppx_deriving.ord
+  Path:               src/core
+  Modules:            Feature, Stat_feature, Sampler, Column, Data_sort, Omega, Interpolater, Surface_plot
+  BuildDepends:       core, threads, containers, gen, plplot, containers, ppx_deriving, ppx_deriving.enum, ppx_deriving.show, ppx_deriving.ord
+  XMETADescription:   Model visualization core library
+
+Library "gpr_model_vis"
+  Pack:               true
+  Build$:             flag(gpr) || flag(all)
+  Install$:           flag(gpr) || flag(all)
+  Path:               src/gpr
+  Modules:            Vector, Gpr_model
+  BuildDepends:       model-vis, gpr
+  FindLibParent:      model-vis
+  XMETADescription:   Gaussian process regression model visualization
+
 
 AlphaFeatures : ocamlbuild_more_args
