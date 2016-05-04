@@ -17,6 +17,7 @@ install: [
 ]
 
 remove: [
+ ["ocamlfind" "remove" "model-vis.gpr"]
  ["ocamlfind" "remove" "model-vis"]
 ]
 
