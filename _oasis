@@ -27,7 +27,7 @@ Library "model-vis"
   BuildDepends:       core, threads, containers, gen, plplot, containers, ppx_deriving, ppx_deriving.enum, ppx_deriving.show, ppx_deriving.ord
   XMETADescription:   Model visualization core library
 
-Library "gpr"
+Library "gpr-support"
   Pack:               true
   Build$:             flag(gpr) || flag(all)
   Install$:           flag(gpr) || flag(all)
