@@ -1,0 +1,31 @@
+opam-version: "1.2"
+name: "model-vis"
+version: "dev"
+author : "Carmelo Piccione carmelo.piccione+model-vis@gmail.com"
+maintainer: "carmelo.piccione+model-vis@gmail.com"
+homepage: "https://github.com/struktured/model-vis"
+dev-repo: "git://github.com/struktured/model-vis.git#master"
+bug-reports: "https://github.com/struktured/model-vis/issues"
+
+build: [
+  ["./configure" "--%{gpr:enable}%-gpr"]
+  [make "-j2"]
+]
+
+install: [
+  [make "install"]
+]
+
+remove: [
+ ["ocamlfind" "remove" "model-vis"]
+]
+
+depends: [
+  "ocamlbuild" {build}
+  "ocamlfind"
+  "core" "containers" "plplot" "gen"
+]
+
+deopts: [
+  "gpr"
+]
