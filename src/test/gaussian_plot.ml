@@ -17,7 +17,7 @@ module XY_Feature = Feature.Enum_feature(XY)
 
 module Plot = Surface_plot.Make(XY_Feature)
 
-let plot ?(trials=10000) () =
+let plot ?(trials=1000) () =
   let sampler = Gen.init ~limit:trials
     (fun _ -> sum_sqr ()) in
-  Plot.create ~feature1:`X ~feature2:`Y ~output:`Z ~sampler
+  Plot.create ~title:"Sum of Two Squared Gaussians" ~feature1:`X ~feature2:`Y ~output:`Z ~sampler

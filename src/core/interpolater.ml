@@ -1,7 +1,7 @@
 open Core.Std
 module Array = Array
 
-let _avg_output ?z_col ?(dist=fun x y -> (exp (x -. y))**2.0) ~(points:Sampler.t) ~(data:float array array) =
+let _avg_output ?z_col ?(dist=fun x y -> (exp ((x -. y))**2.0)) ~(points:Sampler.t) ~(data:float array array) =
   let arr_dist_map point row = Array.mapi ~f:(fun i e -> dist e row.(i)) point in
   let arr_dist point (row:float array) =
     arr_dist_map point row |> fun arr ->
@@ -36,21 +36,27 @@ let with_inc ?(x_col=0) ?(y_col=1) ?z_col ?dist ?inc ~(data:float array array) =
   let maxes = Column.max (Gen.of_array data) in
   let mins = Column.min (Gen.of_array data) in
   let abs_sum = Gen.map (Array.map ~f:Float.abs) (Gen.of_array data) |> Column.sum |> Array.fold ~f:((+.)) ~init:0.0 in
-  let inc = match inc with Some inc -> inc | None -> max 0.00001 (log abs_sum) in
+  let inc = match inc with Some inc -> inc | None -> max 0.01 (abs_sum/.100.) in
   let dims = Array.map2_exn maxes mins
       ~f:(fun maxx minx -> max 1 (Float.to_int (Float.abs (maxx -. minx) /. inc))) in
+  print_endline "created dims";
   let dimx = dims.(x_col) in
   let dimy = dims.(y_col) in
+  let slope_x = if dimx > dimy then 1.0 else Float.of_int dimx /. Float.of_int dimy in
+  let slope_y = if dimx < dimy then 1.0 else Float.of_int dimy /. Float.of_int dimx in
   let x_min = mins.(x_col) in
   let y_min = mins.(y_col) in
+  print_endline "create z";
   let z = Array.make_matrix ~dimx ~dimy 0.0 in
-  for i = 0 to dimx do
-    for j = 0 to dimy do
-      let point = [|x_min +. (Float.of_int i) *.inc; y_min +. (Float.of_int j) *.inc|] in
+  print_endline "made z";
+  for i = 0 to dimx-1 do
+    for j = 0 to dimy-1 do
+      let point = [|x_min +. (Float.of_int i) *. slope_x *. inc; y_min +. (Float.of_int j) *. slope_y *. inc|] in
       z.(i).(j) <-
         (_avg_output ?z_col ?dist ~points:(Gen.singleton point) ~data |> Gen.get_exn |> Array.last)
     done
   done;
+  print_endline "end of assign z";
   let z_col = match z_col with Some z_col -> z_col | None -> Array.length maxes - 1 in
   let x_max = maxes.(x_col) in
   let y_max = maxes.(y_col) in

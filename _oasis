@@ -15,10 +15,6 @@ Flag all
   Description: build and install everything
   Default: false
 
-Flag test
-  Description: build test suite
-  Default: false
-
 Flag gpr
   Default$: flag(all)
   Description: Enable gaussian process regression support
@@ -43,8 +39,8 @@ Library "gpr-support"
 
 Library "test-core"
   Pack:               false
-  Build$:             flag(all) || flag(test)
-  Install$:           flag(all) || flag(test)
+  Build$:             flag(all) || flag(tests)
+  Install$:           flag(all) || flag(tests)
   Path:               src/test
   Modules:            Gaussian_plot
   BuildDepends:       model-vis, oml

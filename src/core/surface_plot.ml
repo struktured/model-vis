@@ -8,7 +8,15 @@
 
 open Plplot
 
-let colorbar ?color ?contour values =
+(* Fundamental settings.  See notes[] for more info. *)
+
+let ns = 20             (* Default number of shade levels *)
+
+module Make(F:Feature.S) =
+struct
+module F_compare = Data_sort.Feature_compare(F)
+
+let colorbar ?color ?contour values ~(output:F.t) =
   (* Smaller text *)
   plschr 0.0 0.75;
   (* Small ticks on the vertical axis *)
@@ -27,7 +35,7 @@ let colorbar ?color ?contour values =
   let shade = Plot.shade_colorbar ~custom:true ~axis values in
   let pos = Plot.viewport_pos ~inside:false 0.005 0.0 in
   Plot.plot [
-    Plot.colorbar ?color ?contour ~orient:(`top (0.0375, 0.875)) ~label:[`bottom "Magnitude"] ~pos shade;
+    Plot.colorbar ?color ?contour ~orient:(`top (0.0375, 0.875)) ~label:[`bottom (F.to_string output)] ~pos shade;
   ];
 
   (* Reset text and tick sizes *)
@@ -35,18 +43,7 @@ let colorbar ?color ?contour values =
   plsmaj 0.0 1.0;
   plsmin 0.0 1.0
 
-let pi = atan 1.0 *. 4.0
 
-(* Fundamental settings.  See notes[] for more info. *)
-
-let ns = 20             (* Default number of shade levels *)
-
-(* polar plot data *)
-let perimeterpts = 100
-
-module Make(F:Feature.S) =
-struct
-module F_compare = Data_sort.Feature_compare(F)
 let create
     ?dist
     ?inc
@@ -90,15 +87,14 @@ let create
 
   (* Plot using identity transform *)
   pladv 0;
-  plvpor x_min x_max y_min y_max;
+  plvpor 0.1 0.9 0.1 0.9;
   (* TODO Round to nereast 1*10^(-x) based on relative precisions?? *)
   plwind x_min x_max y_min y_max;
-
   plpsty 0;
 
   plshades z x_min x_max y_min y_max shedge fill_width cont_color cont_width true;
 
-  colorbar shedge;
+  colorbar ~output shedge;
 
   plcol0 1;
   plbox "bcnst" 0.0 0 "bcnstv" 0.0 0;
