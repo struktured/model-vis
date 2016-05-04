@@ -24,7 +24,7 @@ Flag gpr
   Description: Enable gaussian process regression support
 
 Library "model-vis"
-  Pack:               true
+  Pack:               false
   Build:              true
   Path:               src/core
   Modules:            Feature, Stat_feature, Sampler, Column, Data_sort, Omega, Interpolater, Surface_plot
@@ -32,7 +32,7 @@ Library "model-vis"
   XMETADescription:   Model visualization core library
 
 Library "gpr-support"
-  Pack:               true
+  Pack:               false
   Build$:             flag(gpr) || flag(all)
   Install$:           flag(gpr) || flag(all)
   Path:               src/gpr
@@ -42,7 +42,7 @@ Library "gpr-support"
   XMETADescription:   Gaussian process regression model visualization
 
 Library "test-core"
-  Pack:               true
+  Pack:               false
   Build$:             flag(all) || flag(test)
   Install$:           flag(all) || flag(test)
   Path:               src/test

@@ -44,29 +44,13 @@ let ns = 20             (* Default number of shade levels *)
 (* polar plot data *)
 let perimeterpts = 100
 
-(*--------------------------------------------------------------------------*\
- * f2mnmx
- *
- * Returns min & max of input 2d array.
-\*--------------------------------------------------------------------------*)
-let f2mnmx f =
-  let fmax = ref f.(0).(0) in
-  let fmin = ref f.(0).(0) in
-  for i = 0 to Array.length f - 1 do
-    for j = 0 to Array.length f.(i) - 1 do
-      fmax := max !fmax f.(i).(j);
-      fmin := min !fmin f.(i).(j);
-    done
-  done;
-  !fmin, !fmax
-
 module Make(F:Feature.S) =
 struct
 module F_compare = Data_sort.Feature_compare(F)
 let create
     ?dist
     ?inc
-    ?(device="png")
+    ?(device)
     ?title
     ~(feature1:F.t)
     ~(feature2:F.t)
@@ -76,6 +60,8 @@ let create
   let fill_width = 2.0 in
   let cont_color = 0 in
   let cont_width = 0.0 in
+
+  match device with Some d -> plsdev d | None -> ();
 
   (* Parse and process command line arguments *)
   plparseopts Sys.argv [PL_PARSE_FULL];
@@ -87,8 +73,7 @@ let create
   (* Reduce colors in cmap 0 so that cmap 1 is useful on a 16-color display *)
   plscmap0n 3;
 
-  plsdev device;
-  (* Initialize plplot *)
+    (* Initialize plplot *)
   plinit ();
   let raw_data : float array array = sampler
     |> Data_sort.sort_floats |> Gen.to_array in
