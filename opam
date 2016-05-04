@@ -23,7 +23,7 @@ remove: [
 depends: [
   "ocamlbuild" {build}
   "ocamlfind"
-  "core" "containers" "plplot" "gen"
+  "core" "containers" "plplot" "gen" "oml"
 ]
 
 deopts: [

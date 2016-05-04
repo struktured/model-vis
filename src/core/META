@@ -1,14 +1,25 @@
 # OASIS_START
-# DO NOT EDIT (digest: e427dd14130bd06a28665fd223d4f382)
+# DO NOT EDIT (digest: eb063c0189097723ac38d3bb27a6f3f9)
 version = "0.1"
 description = "Model visualization core library"
 requires =
-"core threads containers gen plplot containers ppx_deriving ppx_deriving.enum ppx_deriving.show ppx_deriving.ord"
+"core threads containers gen plplot containers ppx_deriving ppx_deriving.enum ppx_deriving.show ppx_deriving.ord oml"
 archive(byte) = "model-vis.cma"
 archive(byte, plugin) = "model-vis.cma"
 archive(native) = "model-vis.cmxa"
 archive(native, plugin) = "model-vis.cmxs"
 exists_if = "model-vis.cma"
+package "test-core" (
+ version = "0.1"
+ description = "Test suite"
+ requires = "model-vis oml"
+ archive(byte) = "test-core.cma"
+ archive(byte, plugin) = "test-core.cma"
+ archive(native) = "test-core.cmxa"
+ archive(native, plugin) = "test-core.cmxs"
+ exists_if = "test-core.cma"
+)
+
 package "gpr-support" (
  version = "0.1"
  description = "Gaussian process regression model visualization"

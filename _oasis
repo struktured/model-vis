@@ -15,6 +15,10 @@ Flag all
   Description: build and install everything
   Default: false
 
+Flag test
+  Description: build test suite
+  Default: false
+
 Flag gpr
   Default$: flag(all)
   Description: Enable gaussian process regression support
@@ -24,7 +28,7 @@ Library "model-vis"
   Build:              true
   Path:               src/core
   Modules:            Feature, Stat_feature, Sampler, Column, Data_sort, Omega, Interpolater, Surface_plot
-  BuildDepends:       core, threads, containers, gen, plplot, containers, ppx_deriving, ppx_deriving.enum, ppx_deriving.show, ppx_deriving.ord
+  BuildDepends:       core, threads, containers, gen, plplot, containers, ppx_deriving, ppx_deriving.enum, ppx_deriving.show, ppx_deriving.ord, oml
   XMETADescription:   Model visualization core library
 
 Library "gpr-support"
@@ -36,6 +40,16 @@ Library "gpr-support"
   BuildDepends:       model-vis, gpr
   FindLibParent:      model-vis
   XMETADescription:   Gaussian process regression model visualization
+
+Library "test-core"
+  Pack:               true
+  Build$:             flag(all) || flag(test)
+  Install$:           flag(alll) || flag(test)
+  Path:               src/test
+  Modules:            Gaussian_plot
+  BuildDepends:       model-vis, oml
+  FindLibParent:      model-vis
+  XMETADescription:   Test suite
 
 
 AlphaFeatures : ocamlbuild_more_args

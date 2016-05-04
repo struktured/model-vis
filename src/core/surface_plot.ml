@@ -93,27 +93,25 @@ let create
   let raw_data : float array array = sampler
     |> Data_sort.sort_floats |> Gen.to_array in
   let open Interpolater in
-  let {z;_} = with_inc ~x_col:(F.to_int feature1) ~y_col:(F.to_int feature2) ~z_col:(F.to_int output) 
+  let {z;x_min;y_min;x_max;y_max;z_min;z_max} = with_inc ~x_col:(F.to_int feature1) ~y_col:(F.to_int feature2) ~z_col:(F.to_int output)
     ?dist ?inc ~data:raw_data in
-  (*let xyz_data : float array array = Gen.map (F.sub_array [feature1;feature2;output]) sampler*)
-(*    |> Data_sort.sort_floats |> Gen.to_array in *)
-  let zmin, zmax = f2mnmx z in
   let shedge =
     Array.init (ns + 1) (
       fun i ->
-        zmin +. (zmax -. zmin) *. float_of_int i /. float_of_int ns
+        z_min +. (z_max -. z_min) *. float_of_int i /. float_of_int ns
     )
   in
 
 
   (* Plot using identity transform *)
   pladv 0;
-  plvpor 0.1 0.9 0.1 0.9;
-  plwind (-1.0) 1.0 (-1.0) 1.0;
+  plvpor x_min x_max y_min y_max;
+  (* TODO Round to nereast 1*10^(-x) based on relative precisions?? *)
+  plwind x_min x_max y_min y_max;
 
   plpsty 0;
 
-  plshades z (-1.0) 1.0 (-1.0) 1.0 shedge fill_width cont_color cont_width true;
+  plshades z x_min x_max y_min y_max shedge fill_width cont_color cont_width true;
 
   colorbar shedge;
 
@@ -132,3 +130,5 @@ let create
   plend ();
   ()
 end
+
+

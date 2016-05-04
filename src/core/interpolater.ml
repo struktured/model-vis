@@ -21,6 +21,12 @@ type t = {
   mins: float array;
   maxes: float array;
   dims: int array;
+  x_min: float;
+  y_min: float;
+  x_max: float;
+  y_max: float;
+  z_min: float;
+  z_max: float;
   x_col: int;
   y_col: int;
   z_col: int;
@@ -35,15 +41,22 @@ let with_inc ?(x_col=0) ?(y_col=1) ?z_col ?dist ?inc ~(data:float array array) =
       ~f:(fun maxx minx -> max 1 (Float.to_int (Float.abs (maxx -. minx) /. inc))) in
   let dimx = dims.(x_col) in
   let dimy = dims.(y_col) in
-  let minx = mins.(x_col) in
-  let miny = mins.(y_col) in
+  let x_min = mins.(x_col) in
+  let y_min = mins.(y_col) in
   let z = Array.make_matrix ~dimx ~dimy 0.0 in
   for i = 0 to dimx do
     for j = 0 to dimy do
-      let point = [|minx +. (Float.of_int i) *.inc; miny +. (Float.of_int j) *.inc|] in
+      let point = [|x_min +. (Float.of_int i) *.inc; y_min +. (Float.of_int j) *.inc|] in
       z.(i).(j) <-
         (_avg_output ?z_col ?dist ~points:(Gen.singleton point) ~data |> Gen.get_exn |> Array.last)
     done
   done;
   let z_col = match z_col with Some z_col -> z_col | None -> Array.length maxes - 1 in
-  {maxes;mins;dims;x_col;y_col;z_col;z}
+  let x_max = maxes.(x_col) in
+  let y_max = maxes.(y_col) in
+  let z_max = maxes.(z_col) in
+  let z_min = mins.(z_col) in
+  {maxes;mins;dims;
+  x_col;y_col;z_col;
+  x_min;y_min;x_max;y_max;z_min;z_max;
+  z}
