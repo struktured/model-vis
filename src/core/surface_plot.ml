@@ -63,7 +63,7 @@ let create
   Plot_filename.set_or_default ?tag ~feature1 ~feature2 ~output ~device fname;
   Plot_device.set device;
   (* Parse and process command line arguments *)
-  plparseopts Sys.argv [PL_PARSE_FULL];
+  plparseopts Sys.argv [PL_PARSE_SKIP];
 
   (* Load color palettes *)
   plspal0 "cmap0_black_on_white.pal";
