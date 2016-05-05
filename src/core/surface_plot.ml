@@ -124,8 +124,12 @@ let create
     ?(stddev:F.t option)
     ~(sampler:Sampler.t) =
     let all_but_output = Array.filter ~f:(fun x -> not (x = output)) F.all in
-    Array.iter ~f:(fun feature1 -> Array.iter ~f:(fun feature2 -> if (feature1 = feature2) then (* TODO generalize this and change to a 2d xy plot *) () else
-      create ?fname:None ?tag ~feature1 ~feature2 ?dist ?inc ?device ?title ~output ?stddev ~sampler) all_but_output) all_but_output;
+    let data = Gen.to_array sampler in
+    Array.iter ~f:(fun feature1 -> Array.iter ~f:(fun feature2 -> 
+        if (feature1 = feature2) then (* TODO generalize this and change to a 2d xy plot *) () else
+      create ?fname:None ?tag ~feature1 ~feature2 ?dist ?inc ?device ?title
+        ~output ?stddev ~sampler:(Gen.of_array data)) all_but_output)
+        all_but_output;
     ()
 
 end
