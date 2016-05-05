@@ -7,7 +7,7 @@
 *)
 
 open Plplot
-
+open Core.Std
 (* Fundamental settings.  See notes[] for more info. *)
 
 let ns = 20             (* Default number of shade levels *)
@@ -15,7 +15,7 @@ let ns = 20             (* Default number of shade levels *)
 module Make(F:Feature.S) =
 struct
 module F_compare = Data_sort.Feature_compare(F)
-
+module Plot_filename = Plot_filename.Make(F)
 let colorbar ?color ?contour values ~(output:F.t) =
   (* Smaller text *)
   plschr 0.0 0.75;
@@ -45,9 +45,11 @@ let colorbar ?color ?contour values ~(output:F.t) =
 
 
 let create
+    ?fname
     ?dist
     ?inc
-    ?(device)
+    ?(device=`png)
+    ?tag
     ?title
     ~(feature1:F.t)
     ~(feature2:F.t)
@@ -58,8 +60,8 @@ let create
   let cont_color = 0 in
   let cont_width = 0.0 in
 
-  match device with Some d -> plsdev d | None -> ();
-
+  Plot_filename.set_or_default ?tag ~feature1 ~feature2 ~output ~device fname;
+  Plot_device.set device;
   (* Parse and process command line arguments *)
   plparseopts Sys.argv [PL_PARSE_FULL];
 
@@ -75,12 +77,13 @@ let create
   let raw_data : float array array = sampler
     |> Data_sort.sort_floats |> Gen.to_array in
   let open Interpolater in
-  let {z;x_min;y_min;x_max;y_max;z_min;z_max} = with_inc ~x_col:(F.to_int feature1) ~y_col:(F.to_int feature2) ~z_col:(F.to_int output)
+  let {z;x_min;y_min;x_max;y_max;z_min;z_max} = 
+    with_inc ~x_col:(F.to_int feature1) ~y_col:(F.to_int feature2) ~z_col:(F.to_int output)
     ?dist ?inc ~data:raw_data in
   let shedge =
     Array.init (ns + 1) (
       fun i ->
-        z_min +. (z_max -. z_min) *. float_of_int i /. float_of_int ns
+        z_min +. (z_max -. z_min) *. Float.of_int i /. Float.of_int ns
     )
   in
 
@@ -110,6 +113,21 @@ let create
   (* Clean up *)
   plend ();
   ()
+
+  let for_each_feature
+    ?dist
+    ?inc
+    ?device
+    ?tag
+    ?title
+    ~(output:F.t)
+    ?(stddev:F.t option)
+    ~(sampler:Sampler.t) =
+    let all_but_output = Array.filter ~f:(fun x -> not (x = output)) F.all in
+    Array.iter ~f:(fun feature1 -> Array.iter ~f:(fun feature2 -> if (feature1 = feature2) then (* TODO generalize this and change to a 2d xy plot *) () else
+      create ?fname:None ?tag ~feature1 ~feature2 ?dist ?inc ?device ?title ~output ?stddev ~sampler) all_but_output) all_but_output;
+    ()
+
 end
 
 
