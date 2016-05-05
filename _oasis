@@ -8,7 +8,7 @@ Authors:     Carmelo Piccione
 Synopsis:    Plot, visualize, and analyze data models in OCaml
 BuildTools:  ocamlbuild
 Plugins: META (0.4), DevFiles (0.4)
-XDevFilesEnableMakefile: false
+XDevFilesEnableMakefile: true
 
 
 Flag all
