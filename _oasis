@@ -32,7 +32,7 @@ Library "gpr-support"
   Build$:             flag(gpr) || flag(all)
   Install$:           flag(gpr) || flag(all)
   Path:               src/gpr
-  Modules:            Vector, Gpr_model
+  Modules:            Vector, Gpr_model, Gpr_model_plot
   BuildDepends:       model-vis, gpr
   FindLibParent:      model-vis
   XMETADescription:   Gaussian process regression model visualization
