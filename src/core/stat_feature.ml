@@ -16,7 +16,8 @@ struct
 end
 
 module Stat_feature = Feature.Enum_feature(Stat)
-module With_inputs(F:Feature.S) : Feature.S =
+module With_inputs(F:Feature.S) : Feature.S with type t = [`Input of F.t |
+                                                           `Stat of Stat.t] =
 struct
   type t = [`Input of F.t | `Stat of Stat.t] 
 
