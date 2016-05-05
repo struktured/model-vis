@@ -1,3 +1,4 @@
-PKG core gpr plplot containers ppx_deriving gen ppx_deriving.enum ppx_deriving.show ppx_deriving.ord oml calendar
+PKG core gpr plplot containers ppx_deriving gen ppx_deriving.enum
+PKG ppx_deriving.show ppx_deriving.ord oml calendar csv
 S src/**
 B _build/**

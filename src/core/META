@@ -1,9 +1,9 @@
 # OASIS_START
-# DO NOT EDIT (digest: 3dfe504c2ba00853b6e08ebacbab23da)
+# DO NOT EDIT (digest: 4d21b1c8f5d2abbab626c36cc1970ef6)
 version = "0.1"
 description = "Model visualization core library"
 requires =
-"core threads containers gen plplot containers ppx_deriving ppx_deriving.enum ppx_deriving.show ppx_deriving.ord oml calendar"
+"core threads containers gen plplot containers ppx_deriving ppx_deriving.enum ppx_deriving.show ppx_deriving.ord oml calendar csv"
 archive(byte) = "model-vis.cma"
 archive(byte, plugin) = "model-vis.cma"
 archive(native) = "model-vis.cmxa"

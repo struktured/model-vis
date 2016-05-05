@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: e02e7c04438c4b3040bceb64f8fe828b)
+# DO NOT EDIT (digest: e44b9457af233676a1f7778a2f3f438d)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -19,6 +19,7 @@ true: annot, bin_annot
 <src/core/*.ml{,i,y}>: package(calendar)
 <src/core/*.ml{,i,y}>: package(containers)
 <src/core/*.ml{,i,y}>: package(core)
+<src/core/*.ml{,i,y}>: package(csv)
 <src/core/*.ml{,i,y}>: package(gen)
 <src/core/*.ml{,i,y}>: package(oml)
 <src/core/*.ml{,i,y}>: package(plplot)
@@ -32,6 +33,7 @@ true: annot, bin_annot
 <src/gpr/*.ml{,i,y}>: package(calendar)
 <src/gpr/*.ml{,i,y}>: package(containers)
 <src/gpr/*.ml{,i,y}>: package(core)
+<src/gpr/*.ml{,i,y}>: package(csv)
 <src/gpr/*.ml{,i,y}>: package(gen)
 <src/gpr/*.ml{,i,y}>: package(gpr)
 <src/gpr/*.ml{,i,y}>: package(oml)
@@ -47,6 +49,7 @@ true: annot, bin_annot
 <src/test/*.ml{,i,y}>: package(calendar)
 <src/test/*.ml{,i,y}>: package(containers)
 <src/test/*.ml{,i,y}>: package(core)
+<src/test/*.ml{,i,y}>: package(csv)
 <src/test/*.ml{,i,y}>: package(gen)
 <src/test/*.ml{,i,y}>: package(oml)
 <src/test/*.ml{,i,y}>: package(plplot)
