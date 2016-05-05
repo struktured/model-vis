@@ -1,0 +1,59 @@
+# OASIS_START
+# DO NOT EDIT (digest: e02e7c04438c4b3040bceb64f8fe828b)
+# Ignore VCS directories, you can use the same kind of rule outside
+# OASIS_START/STOP if you want to exclude directories that contains
+# useless stuff for the build process
+true: annot, bin_annot
+<**/.svn>: -traverse
+<**/.svn>: not_hygienic
+".bzr": -traverse
+".bzr": not_hygienic
+".hg": -traverse
+".hg": not_hygienic
+".git": -traverse
+".git": not_hygienic
+"_darcs": -traverse
+"_darcs": not_hygienic
+# Library model-vis
+"src/core/model-vis.cmxs": use_model-vis
+<src/core/*.ml{,i,y}>: package(calendar)
+<src/core/*.ml{,i,y}>: package(containers)
+<src/core/*.ml{,i,y}>: package(core)
+<src/core/*.ml{,i,y}>: package(gen)
+<src/core/*.ml{,i,y}>: package(oml)
+<src/core/*.ml{,i,y}>: package(plplot)
+<src/core/*.ml{,i,y}>: package(ppx_deriving)
+<src/core/*.ml{,i,y}>: package(ppx_deriving.enum)
+<src/core/*.ml{,i,y}>: package(ppx_deriving.ord)
+<src/core/*.ml{,i,y}>: package(ppx_deriving.show)
+<src/core/*.ml{,i,y}>: package(threads)
+# Library gpr-support
+"src/gpr/gpr-support.cmxs": use_gpr-support
+<src/gpr/*.ml{,i,y}>: package(calendar)
+<src/gpr/*.ml{,i,y}>: package(containers)
+<src/gpr/*.ml{,i,y}>: package(core)
+<src/gpr/*.ml{,i,y}>: package(gen)
+<src/gpr/*.ml{,i,y}>: package(gpr)
+<src/gpr/*.ml{,i,y}>: package(oml)
+<src/gpr/*.ml{,i,y}>: package(plplot)
+<src/gpr/*.ml{,i,y}>: package(ppx_deriving)
+<src/gpr/*.ml{,i,y}>: package(ppx_deriving.enum)
+<src/gpr/*.ml{,i,y}>: package(ppx_deriving.ord)
+<src/gpr/*.ml{,i,y}>: package(ppx_deriving.show)
+<src/gpr/*.ml{,i,y}>: package(threads)
+<src/gpr/*.ml{,i,y}>: use_model-vis
+# Library test-core
+"src/test/test-core.cmxs": use_test-core
+<src/test/*.ml{,i,y}>: package(calendar)
+<src/test/*.ml{,i,y}>: package(containers)
+<src/test/*.ml{,i,y}>: package(core)
+<src/test/*.ml{,i,y}>: package(gen)
+<src/test/*.ml{,i,y}>: package(oml)
+<src/test/*.ml{,i,y}>: package(plplot)
+<src/test/*.ml{,i,y}>: package(ppx_deriving)
+<src/test/*.ml{,i,y}>: package(ppx_deriving.enum)
+<src/test/*.ml{,i,y}>: package(ppx_deriving.ord)
+<src/test/*.ml{,i,y}>: package(ppx_deriving.show)
+<src/test/*.ml{,i,y}>: package(threads)
+<src/test/*.ml{,i,y}>: use_model-vis
+# OASIS_STOP
