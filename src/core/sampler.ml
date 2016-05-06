@@ -19,12 +19,3 @@ module Uniform(Features:Feature.S) =
         CCRandom.run feature_rand))
   end
 
-let of_file filename : t =
-    let file_chan = In_channel.create filename in
-    Csv.of_channel file_chan |>
-    Gen.unfold (fun chan -> 
-        try 
-          let arr = Csv.next chan |> List.map ~f:Float.of_string |>
-                    Array.of_list in Some (arr, chan) 
-        with _ -> In_channel.close file_chan;None)
-
