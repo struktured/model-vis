@@ -205,8 +205,8 @@ struct
      (Option.value ~default:Sampler.default_trials args.Args.samples) ()
 end
 
-module Make(F:Feature.S) = struct
-module F_with_stats = Stat_feature.With_inputs(F)
+module Make(Inputs:Feature.S)(Outputs:Feature.S) = struct
+module In_out = Feature.In_out(Inputs)(Outputs)
 let eval (sampler:Sampler.t) args : Sampler.t =
  let { Args.model_file; with_stddev; predictive} = args in
   let
@@ -248,3 +248,6 @@ let eval (sampler:Sampler.t) args : Sampler.t =
         Array.concat [arr; [|renorm_mean mean|]]) gen
       (Gen.of_array (Vec.to_array means))
 end
+
+module Make_with_stats(Inputs:Feature.S) =
+  Make(Inputs)(Stat_feature.Stat_feature)

@@ -107,7 +107,7 @@ let create
   let title = match title with
     | Some t -> t
     | None -> let output_text = F.to_string output in
-        Printf.sprintf "%s (%s vs. %s)"
+        Printf.sprintf "%s vs. %s vs. %s"
           feature1_axis_text feature2_axis_text output_text in
   pllab feature1_axis_text feature2_axis_text title;
   (* Clean up *)

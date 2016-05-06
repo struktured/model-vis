@@ -73,14 +73,54 @@ module Generic_features(C: sig val count : int end) : S = struct
   include Enum
 end
 
-module In_outs(In:S)(Out:S) : S with type t = [`In of In.t | `Out of Out.t] =
+module In_out(In:S)(Out:S) : S with type t = [`In of In.t | `Out of Out.t] =
 struct
   type t = [`In of In.t | `Out of Out.t]
   let in_len = Array.length In.all
   let out_len = Array.length Out.all
-  let to_int = function `In t -> In.to_int t |`Out t -> Out.to_int t
+  let to_int = function `In t -> In.to_int t |`Out t -> Out.to_int t + in_len
   let of_int = function 
-    | i when i < in_len && i >= 0 -> `In In.of_int t
-    | i when i >= in_len && i < in_len+out_len -> `Out Out.of_int t
-    
+    | i when i < in_len && i >= 0 -> begin match In.of_int i with Some i -> 
+      Some (`In i) | None -> None end
+    | i when i >= in_len && i < in_len+out_len -> 
+      begin 
+        match Out.of_int (i-in_len)
+        with Some o -> Some (`Out o) | None -> None 
+      end
+    | _ -> None
+  let all = Array.concat [
+      (Array.map In.all ~f:(fun x -> `In x));
+      (Array.map Out.all ~f:(fun x -> `Out x))]
+
+  let get t arr = to_int t |> function 
+    | i when i >= 0 && i < Array.length arr -> Some arr.(i)
+    | _ -> None  
+
+  let to_string = function 
+    |`In i -> In.to_string i
+    |`Out o -> Out.to_string o
+
+  let of_string x = 
+    match In.of_string x with
+    | Some i -> Some (`In i)
+    | None -> match Out.of_string x with
+      | Some o -> Some (`Out o)
+      | None -> None
+
+  let domain = function 
+    | `In i -> In.domain i
+    | `Out o -> Out.domain o
+
+  let min = function
+    | `In i -> In.min i
+    | `Out o -> Out.min o
+
+  let max = function
+    | `In i -> In.max i
+    | `Out o -> Out.max o
+
+
+  let sub_array features arr =
+    Array.empty ()
+
 end
