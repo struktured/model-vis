@@ -248,11 +248,3 @@ let eval (sampler:Sampler.t) args : Sampler.t =
         Array.concat [arr; [|renorm_mean mean|]]) gen
       (Gen.of_array (Vec.to_array means))
 end
-
-(*
-let uniform_eval (module F: Feature.S) args =
-  let module Uni = Uniform_sampler(F) in
-  let sampler = Uni.create args in
-  eval sampler args
-
-*)
