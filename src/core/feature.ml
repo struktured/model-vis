@@ -73,3 +73,14 @@ module Generic_features(C: sig val count : int end) : S = struct
   include Enum
 end
 
+module In_outs(In:S)(Out:S) : S with type t = [`In of In.t | `Out of Out.t] =
+struct
+  type t = [`In of In.t | `Out of Out.t]
+  let in_len = Array.length In.all
+  let out_len = Array.length Out.all
+  let to_int = function `In t -> In.to_int t |`Out t -> Out.to_int t
+  let of_int = function 
+    | i when i < in_len && i >= 0 -> `In In.of_int t
+    | i when i >= in_len && i < in_len+out_len -> `Out Out.of_int t
+    
+end
