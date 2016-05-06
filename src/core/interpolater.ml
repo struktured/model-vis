@@ -40,7 +40,7 @@ let min_dims = 3
 let with_inc ?(x_col=0) ?(y_col=1) ?z_col ?dist ?inc ~(data:float array array) =
   let maxes = Column.max (Gen.of_array data) in
   let mins = Column.min (Gen.of_array data) in
-  let abs_sum = Gen.map (Array.map ~f:Float.abs) (Gen.of_array data) |> Column.sum |> Array.fold ~f:((+.)) ~init:0.0 in
+  let abs_sum = Gen.map (Array.map ~f:Float.abs) (Gen.of_array data) |> Column.max |> Array.fold ~f:((+.)) ~init:0.0 in
   let inc = match inc with Some inc -> inc | None -> max 0.01 (abs_sum/.100.) in
   let widths = Array.map2_exn maxes mins
       ~f:(fun maxx minx -> Float.abs (maxx -. minx)) in
@@ -60,7 +60,7 @@ let with_inc ?(x_col=0) ?(y_col=1) ?z_col ?dist ?inc ~(data:float array array) =
   print_endline "made z";
   for i = 0 to dimx-1 do
     for j = 0 to dimy-1 do
-      let point = [|x_min +. (Float.of_int i) *. inc; y_min +. (Float.of_int j) *. inc|] in
+      let point = [|x_min +. Float.of_int i *. inc; y_min +. Float.of_int j *. inc|] in
       z.(i).(j) <-
         (_avg_output ?z_col ?dist ~points:(Gen.singleton point) ~data |> Gen.get_exn |> Array.last)
     done
