@@ -14,9 +14,11 @@ let of_file filename : Sampler.t =
         with _ -> In_channel.close file_chan;None)
 let to_file sampler filename =
     let file_chan = Out_channel.create filename in
+    try
     (* TODO streaming version of this *)
     let samples = Gen.to_array (Gen.map (Array.map ~f:Float.to_string) sampler) in
     let csv =  Csv.of_array samples in
     Csv.output_all (Csv.to_channel file_chan) csv
-
+    with _ -> ();
+    Out_channel.close file_chan
 

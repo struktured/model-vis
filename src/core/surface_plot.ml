@@ -90,7 +90,7 @@ let create
 
   (* Plot using identity transform *)
   pladv 0;
-  plvpor 0.1 0.9 0.1 0.9;
+  plvpor 0.2 0.8 0.2 0.8;
   (* TODO Round to nereast 1*10^(-x) based on relative precisions?? *)
   plwind x_min x_max y_min y_max;
   plpsty 0;
@@ -129,7 +129,7 @@ let create
         if (feature1 = feature2) then (* TODO generalize this and change to a 2d xy plot *) () else
       create ?fname:None ?tag ~feature1 ~feature2 ?dist ?inc ?device ?title
         ~output ?stddev ~sampler:(Gen.of_array data)) all_but_outputs)
-        all_but_output;
+        all_but_outputs;
     ()
 
 end

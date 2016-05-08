@@ -11,7 +11,7 @@ module Uniform(Features:Feature.S) =
     | Some value -> value
     | None -> match Features.domain t with
       | `Points p -> CCRandom.choose_return p
-      | `Range (r, l) -> CCRandom.float_range l r) Features.all in
+      | `Range (l, r) -> CCRandom.float_range l r) Features.all in
       let dim = Array.length Features.all in
       Gen.int_range 0 trials |>
       Gen.map (fun _ ->
