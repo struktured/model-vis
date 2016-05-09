@@ -218,6 +218,7 @@ let eval (sampler:Sampler.t) args : Sampler.t =
   in
   let big_dim = Vec.dim input_stddevs in
   let raw_inputs = read_test_samples sampler big_dim in
+  let data_array = Mat.transpose_copy raw_inputs |> Mat.to_array in
   let n_inputs = Mat.dim2 raw_inputs in
   for i = 1 to big_dim do
     let mean = input_means.{i} in
@@ -231,7 +232,6 @@ let eval (sampler:Sampler.t) args : Sampler.t =
   let inputs = FIC.Inputs.calc raw_inputs inducing in
   let means = FIC.Means.get (FIC.Means.calc mean_predictor inputs) in
   let renorm_mean mean = mean +. target_mean in
-  let data_array = Mat.transpose_copy raw_inputs |> Mat.to_array in
   print_endline @@ "data_array length 1 " ^ (Int.to_string (Array.length data_array));
   print_endline @@ "data_array length 2 " ^ (Int.to_string (Array.length (data_array.(0))));
   let gen : Sampler.t = Gen.of_array data_array in
