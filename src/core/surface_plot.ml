@@ -47,6 +47,7 @@ let colorbar ?color ?contour values ~(output:F.t) =
 let create
     ?fname
     ?dist
+    ?z_f
     ?inc
     ?(device=`png)
     ?tag
@@ -77,9 +78,9 @@ let create
   let raw_data : float array array = sampler
     |> Data_sort.sort_floats |> Gen.to_array in
   let open Interpolater in
-  let {z;x_min;y_min;x_max;y_max;z_min;z_max} = 
+  let {z;x_min;y_min;x_max;y_max;z_min;z_max} =
     with_inc ~x_col:(F.to_int feature1) ~y_col:(F.to_int feature2) ~z_col:(F.to_int output)
-    ?dist ?inc ~data:raw_data in
+    ?dist ?inc ?z_f ~data:raw_data in
   let shedge =
     Array.init (ns + 1) (
       fun i ->
@@ -116,18 +117,19 @@ let create
 
   let for_each_feature
     ?dist
+    ?z_f
     ?inc
     ?device
     ?tag
     ?title
-    ~(output:F.t)
+   ~(output:F.t)
     ?(stddev:F.t option)
     ~(sampler:Sampler.t) =
     let all_but_outputs = Array.filter ~f:(fun x -> not (x = output || Some x = stddev)) F.all in
     let data = Gen.to_array sampler in
     Array.iter ~f:(fun feature1 -> Array.iter ~f:(fun feature2 ->
         if (feature1 = feature2) then (* TODO generalize this and change to a 2d xy plot *) () else
-      create ?fname:None ?tag ~feature1 ~feature2 ?dist ?inc ?device ?title
+      create ?fname:None ?tag ~feature1 ~feature2 ?dist ?z_f ?inc ?device ?title
         ~output ?stddev ~sampler:(Gen.of_array data)) all_but_outputs)
         all_but_outputs;
     ()

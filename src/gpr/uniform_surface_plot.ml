@@ -39,9 +39,9 @@ let plot ?(fname="uniform-samples.csv") ?trials () =
   let inputs_outputs = Gen.to_array @@ G_plot.plot ?args:None ~data in
   let num_records = Array.length inputs_outputs in
   print_endline @@ "num records: " ^ (string_of_int num_records);
-  let () = Csv_parser.to_file (Gen.of_array inputs_outputs) fname in 
+  let () = Csv_parser.to_file (Gen.of_array inputs_outputs) fname in
   let output = `Out `UnaryScore in
-  S_plot.for_each_feature ?dist:None ?title:None ?device:None ~output
+  S_plot.for_each_feature ?dist:None ?title:None ?device:None ~output ~z_f:Interpolater.exp_avg
     ~stddev:(`Out `ConfidenceScore) ~tag:"Unary Score Regression" ~inc:0.025 ~sampler:(Gen.of_array inputs_outputs)
 
 let () =
