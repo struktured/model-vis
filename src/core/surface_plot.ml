@@ -57,7 +57,7 @@ let create
     ~(output:F.t)
     ?(stddev:F.t option)
     ~(sampler:Sampler.t) =
-  let fill_width = 2.0 in
+  let fill_width = 0.1 in
   let cont_color = 0 in
   let cont_width = 0.0 in
 

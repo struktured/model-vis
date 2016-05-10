@@ -9,7 +9,7 @@ bug-reports: "https://github.com/struktured/model-vis/issues"
 
 build: [
   ["./configure" "--enable-debug" "--enable-profile" "--%{gpr:enable}%-gpr" "--enable-tests"]
-  [make "-j2"]
+  [make "-j4"]
 ]
 
 install: [

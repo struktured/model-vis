@@ -1,22 +1,30 @@
 open Core.Std
+module Array = Array
 let first_min_dist dists =
  let z, w_star, v_star = Array.foldi
       ~f:(fun i (z, w_star, v_star) (w, v) -> 
         let z' = z +. v in
-        if w <. w_star then
+        if w < w_star then
           (z', w, v)
         else
           (z', w_star, v_star))
           ~init:(0.0, Float.infinity, Float.nan) dists in
-  v_star /. z
+  v_star
 
 let exp_avg dists =
-    let v_star, z = Array.foldi
-     ~f:(fun i (z, v_star) (w, v) ->
-        (z +. (exp (-.w))), (exp (-.w)) *. v +. v_star) ~init:(0.0,0.0) dists in
-    v_star /. z
+    let d_sum, v_sum = Array.fold
+     ~f:(fun (d_sum, v_sum) (d, v) ->
+        let exp_inv_d = exp (-.d) in
+        let (d_sum, v_sum) as tuple =
+          d_sum +. exp_inv_d,
+        exp_inv_d *. v +. v_sum in
+        printf "d=%f,v=%f,d_sum=%f,v_sum=%f\n" d v d_sum v_sum;tuple) ~init:(0.0, 0.0) dists in
+    printf "v_sum=%f, d_sum=%f\n" v_sum d_sum;
+    v_sum /. d_sum
 
-let _output ?(z_f=exp_avg) ~z_col ?stddev_col ?(dist=fun x y -> (exp ((x -. y)**2.0)))
+let default_dist x y = (exp ((x-.y)**2.0)) -. 1.0
+
+let _output ?(z_f=exp_avg) ~z_col ?stddev_col ?(dist=default_dist)
   ~(plot_point:float array) ~(data:float array array) =
   let arr_dist_map point row = Array.mapi ~f:(fun i e -> dist e row.(i)) point in
   let arr_dist point (row:float array) =
@@ -73,6 +81,7 @@ let with_inc ?(x_col=0) ?(y_col=1) ?z_col ?stddev_col ?dist ?inc ?z_f ~(data:flo
     for j = 0 to dimy-1 do
       let plot_point = [|x_min +. Float.of_int i *. inc; y_min +. Float.of_int j *. inc|] in
       let z_i_j = _output ?z_f ~z_col ?stddev_col ?dist ~plot_point ~data |> Array.last in
+      printf "z[%d][%d]=%f\n" i j z_i_j;
       z.(i).(j) <- z_i_j
     done
   done;
