@@ -80,7 +80,7 @@ let create
   let open Interpolater in
   let {z;x_min;y_min;x_max;y_max;z_min;z_max} =
     with_inc ~x_col:(F.to_int feature1) ~y_col:(F.to_int feature2) ~z_col:(F.to_int output)
-    ?dist ?inc ?z_f ~data:raw_data in
+    ?dist ?inc ?stddev_col:(Option.map ~f:F.to_int stddev) ?z_f ~data:raw_data in
   let shedge =
     Array.init (ns + 1) (
       fun i ->
