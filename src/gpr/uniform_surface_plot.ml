@@ -51,8 +51,8 @@ let plot ?(fname="uniform-samples.csv") ?trials () =
     ~z_f:Interpolater.first_min_dist
     ~stddev
     ~tag:"Unary Score Regression"
-    ~inc:0.05
+    ~inc:0.025
     ~sampler:(Gen.of_array inputs_outputs)
 
 let () =
-  plot ~trials:150 ()
+  plot ~trials:1000 ()
