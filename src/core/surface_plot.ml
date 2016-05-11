@@ -122,7 +122,6 @@ let create
     ?tag
     ?title
     ?ns
-    ?(vs_self=true)
     ~(output:F.t)
     ?(stddev:F.t option)
     ~(sampler:Sampler.t) =
@@ -130,7 +129,7 @@ let create
     let data = Gen.to_array sampler in
     Array.iter
       ~f:(fun feature1 -> Array.iter ~f:(fun feature2 ->
-        if feature1 = feature2 && not vs_self then () else
+        if (feature1 = feature2) then () else 
         create ?ns ?fname:None ?tag ~feature1 ~feature2 ?dist ?z_f ?inc 
           ?device ?title ~output ?stddev ~sampler:(Gen.of_array data)) 
           all_but_outputs)
