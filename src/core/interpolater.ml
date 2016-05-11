@@ -35,35 +35,29 @@ let exp_avg_top_n ?(n=default_top_n) : z_fun = fun ~(x_col:int) ~(y_col:int) dis
 
 type dist_fun = int -> x_col:int -> y_col:int -> float -> float-> float
 
-let exp_mse_if_xy_col_else_super_exp_mse : dist_fun =
+let exp_mse : dist_fun =
   fun (i:int) ~x_col ~y_col v v' ->
    if i = x_col || i = y_col then
     (exp ((v-.v')**2.0)) -. 1.0
-  else
-    exp (exp (v -. v')**2.0) -. 1.0
+  else failwith("impossible")
+ (*exp (exp (v -. v')**2.0) -. 1.0 *)
 
-let exp_mse_if_xy_col : dist_fun =
-  fun i ~x_col ~y_col v v' ->
-  if i = x_col || i = y_col then
-    (exp ((v-.v')**2.0)) -. 1.0
-  else
-    1.0
 
 let mse_dist_if_xy_col : dist_fun =
   fun i ~x_col ~y_col v v' ->
   if i = x_col || i = y_col then
     (v-.v')**2.0
-  else
-    1.0
+  else failwith("impossible3")
+  (*1.0*)
 
-let mse_dist_if_xy_col_else_super_exp_mse : dist_fun =
+let mse_dist : dist_fun =
   fun i ~x_col ~y_col v v' ->
   if i = x_col || i = y_col then
     (v-.v')**2.0
-  else
-    exp_mse_if_xy_col_else_super_exp_mse i ~x_col ~y_col v v'
+  else failwith("impossible4") (*
+    exp_mse_if_xy_col_else_super_exp_mse i ~x_col ~y_col v v' *)
 
-let default_dist = exp_mse_if_xy_col_else_super_exp_mse
+let default_dist = exp_mse
 
 let _output ~x_col ~y_col ?(z_f=exp_avg) ~z_col ?stddev_col ?(dist=default_dist)
   ~(plot_point:float array) ~(data:float array array) =
