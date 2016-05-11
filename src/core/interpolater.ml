@@ -2,9 +2,9 @@ open Core.Std
 module Array = Array
 
 
-type dist_fun = x_col:int -> y_col:int -> (float * float) array -> float
+type z_fun = x_col:int -> y_col:int -> (float * float) array -> float
 
-let first_min_dist : dist_fun = fun ~(x_col:int) ~(y_col:int) dists ->
+let first_min_dist : z_fun = fun ~(x_col:int) ~(y_col:int) dists ->
  let z, w_star, v_star = Array.foldi
       ~f:(fun i (z, w_star, v_star) (w, v) ->
         let z' = z +. v in
@@ -16,7 +16,7 @@ let first_min_dist : dist_fun = fun ~(x_col:int) ~(y_col:int) dists ->
   v_star
 
 
-let exp_avg : dist_fun = fun  ~(x_col:int) ~(y_col:int) dists ->
+let exp_avg : z_fun = fun  ~(x_col:int) ~(y_col:int) dists ->
     let d_sum, v_sum = Array.fold
      ~f:(fun (d_sum, v_sum) (d, v) ->
         let exp_inv_d = exp (-.d) in
@@ -27,18 +27,43 @@ let exp_avg : dist_fun = fun  ~(x_col:int) ~(y_col:int) dists ->
     v_sum /. d_sum
 
 let default_top_n = 3
-let exp_avg_top_n ?(n=default_top_n) : dist_fun = fun ~(x_col:int) ~(y_col:int) dists ->
+let exp_avg_top_n ?(n=default_top_n) : z_fun = fun ~(x_col:int) ~(y_col:int) dists ->
     Gen.of_array dists |> Gen.sort ~cmp:(fun (x,y) (x',y') -> Float.compare x x')
     |> Gen.chunks n |> Gen.next |> function
     | None -> 0.0
     | Some top_n -> exp_avg ~x_col ~y_col top_n
 
-let default_dist i ~x_col ~y_col x y = 
-  if i = x_col || i = y_col then 
-    (exp ((x-.y)**2.0)) -. 1.0 
-  else
-    exp (exp (x -.y)**2.0) -. 1.0
+type dist_fun = int -> x_col:int -> y_col:int -> float -> float-> float
 
+let exp_mse_if_xy_col_else_super_exp_mse : dist_fun =
+  fun (i:int) ~x_col ~y_col v v' ->
+   if i = x_col || i = y_col then
+    (exp ((v-.v')**2.0)) -. 1.0
+  else
+    exp (exp (v -. v')**2.0) -. 1.0
+
+let exp_mse_if_xy_col : dist_fun =
+  fun i ~x_col ~y_col v v' ->
+  if i = x_col || i = y_col then
+    (exp ((v-.v')**2.0)) -. 1.0
+  else
+    1.0
+
+let mse_dist_if_xy_col : dist_fun =
+  fun i ~x_col ~y_col v v' ->
+  if i = x_col || i = y_col then
+    (v-.v')**2.0
+  else
+    1.0
+
+let mse_dist_if_xy_col_else_super_exp_mse : dist_fun =
+  fun i ~x_col ~y_col v v' ->
+  if i = x_col || i = y_col then
+    (v-.v')**2.0
+  else
+    exp_mse_if_xy_col_else_super_exp_mse i ~x_col ~y_col v v'
+
+let default_dist = exp_mse_if_xy_col_else_super_exp_mse
 
 let _output ~x_col ~y_col ?(z_f=exp_avg) ~z_col ?stddev_col ?(dist=default_dist)
   ~(plot_point:float array) ~(data:float array array) =
@@ -52,12 +77,13 @@ let _output ~x_col ~y_col ?(z_f=exp_avg) ~z_col ?stddev_col ?(dist=default_dist)
   let v_star = z_f ~x_col ~y_col dists in
   Array.append plot_point [|v_star|]
 
-
+let verbose = false (*TODO expose*)
 type t = {
   mins: float array;
   maxes: float array;
   dims: int array;
   widths: float array;
+  inc:float;
   x_min: float;
   y_min: float;
   x_max: float;
@@ -90,23 +116,21 @@ let with_inc ?(x_col=0) ?(y_col=1) ?z_col ?stddev_col ?dist ?inc ?z_f ~(data:flo
   let y_max = maxes.(y_col) in
   let x_width = widths.(x_col) in
   let y_width = widths.(y_col) in
-  print_endline "create z";
   let z = Array.make_matrix ~dimx ~dimy 0.0 in
   let z_col = match z_col with Some z_col -> z_col | None -> Array.length maxes - 1 in
-  for i = 0 to dimx-1 do
-    for j = 0 to dimy-1 do
+  for i = 0 to dimx - 1 do
+    for j = 0 to dimy - 1 do
       let plot_point = [|x_min +. Float.of_int i *. inc; y_min +. Float.of_int j *. inc|] in
       let z_i_j = _output ~x_col ~y_col ?z_f ~z_col ?stddev_col ?dist ~plot_point ~data |> Array.last in
-      printf "z[%d][%d]=%f\n" i j z_i_j;
+      if verbose then printf "[model-vis.interpolater] z[%d][%d]=%f\n" i j z_i_j else ();
       z.(i).(j) <- z_i_j
     done
   done;
-  print_endline "end of assign z";
- let z_max = maxes.(z_col) in
+  let z_max = maxes.(z_col) in
   let z_min = mins.(z_col) in
   let z_width = widths.(z_col) in
-  {maxes;mins;dims;widths;
+  {maxes;mins;dims;widths;inc;
   x_col;y_col;z_col;
   x_width;y_width;z_width;
-  x_min;y_min;x_max;y_max;z_min;z_max;
-  z}
+  x_min;y_min;x_max;y_max;
+  z_min;z_max;z}

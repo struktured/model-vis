@@ -44,15 +44,17 @@ let plot ?(fname="uniform-samples.csv") ?trials () =
   let output = `Out `UnaryScore in
   let stddev = `Out `ConfidenceScore in
   S_plot.for_each_feature
-    ?dist:None
+    ~dist:Interpolater.mse_dist_if_xy_col_else_super_exp_mse
+    ?vs_self:None
     ?title:None
     ?device:None
     ~output
-    ~z_f:Interpolater.first_min_dist
+    ~z_f:(Interpolater.exp_avg_top_n ~n:20)
+    ?ns:None
     ~stddev
     ~tag:"Unary Score Regression"
     ~inc:0.025
     ~sampler:(Gen.of_array inputs_outputs)
 
 let () =
-  plot ~trials:1000 ()
+  plot ~trials:500 ()
