@@ -21,10 +21,7 @@ let plot ?(device=`qtwidget) ?(trials=1000) () =
   let data_stream = Gen.init ~limit:trials
     (fun _ -> sum_sqr ()) in
   Plot.create
-  ?inc:None
-  ?dist:None
-  ~tag:"two-sqr-gauss" ?fname:None
+  ~tag:"two-sqr-gauss"
   ~title:"Sum of Two Squared Gaussians"
   ~device
-  ?stddev:None
   ~feature1:`X ~feature2:`Y ~output:`Z data_stream

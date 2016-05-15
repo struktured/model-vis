@@ -50,6 +50,9 @@ let colorbar ~inc ?color ?contour values ~(output:F.t) =
 
 
 let create
+    ~(feature1:F.t)
+    ~(feature2:F.t)
+    ~(output:F.t)
     ?fname
     ?dist
     ?z_f
@@ -57,10 +60,8 @@ let create
     ?(device=`png)
     ?tag
     ?title
+    ?(fill_width)
     ?(ns=default_ns)
-    ~(feature1:F.t)
-    ~(feature2:F.t)
-    ~(output:F.t)
     ?(stddev:F.t option)
     (data_stream:Data_stream.t) =
   let cont_color = 0 in
@@ -94,7 +95,8 @@ let create
   plwind x_min x_max y_min y_max;
   plpsty 0;
 
-  let fill_width = inc /. 2.0 in
+  let fill_width = Option.value fill_width
+    ~default:(inc /. 2.0) in (* TODO determine best calcuation for fill width *)
   plshades z x_min x_max y_min y_max shedge fill_width cont_color cont_width true;
 
   colorbar ~inc ~output shedge;
