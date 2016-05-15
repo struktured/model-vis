@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 8575347a6fd2c9669dec7cef8881dac9)
+# DO NOT EDIT (digest: a176749b7850ca0f6f64dbf98c344e31)
 Data_frame
 Stat_frame
 Data_stream
@@ -11,4 +11,5 @@ Interpolater
 Plot_filename
 Plot_device
 Surface_plot
+Line_plot
 # OASIS_STOP
