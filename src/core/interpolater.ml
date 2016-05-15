@@ -15,7 +15,6 @@ let first_min_dist : z_fun = fun dists ->
           ~init:(0.0, Float.infinity, Float.nan) dists in
   v_star
 
-
 let exp_avg : z_fun = fun dists ->
     let d_sum, v_sum = Array.fold
      ~f:(fun (d_sum, v_sum) (d, v) ->
@@ -33,7 +32,7 @@ let exp_avg_top_n ?(n=default_top_n) : z_fun = fun  dists ->
     | None -> 0.0
     | Some top_n -> exp_avg top_n
 
-type dist_fun = int -> float -> float-> float
+type dist_fun = int -> float -> float -> float
 
 let exp_mse : dist_fun =
   fun (i:int) v v' ->
@@ -47,9 +46,9 @@ let default_dist = exp_mse
 
 let _output ?(z_f=exp_avg) ~x_col ~y_col ~z_col ?stddev_col ?(dist=default_dist)
   ~(plot_point:float array) ~(data:float array array) =
-  let arr_dist_map point row = Array.mapi ~f:(fun i e -> 
-      match i with 
-      | 0 -> dist i e row.(x_col) 
+  let arr_dist_map point row = Array.mapi ~f:(fun i e ->
+      match i with
+      | 0 -> dist i e row.(x_col)
       | 1 -> dist i e row.(y_col)
       | x -> failwith @@ sprintf "unexpected point %d" x) point in
   let arr_dist point (row:float array) =
@@ -80,6 +79,8 @@ type t = {
   x_width:float;
   y_width:float;
   z_width:float;
+  x: float array;
+  y: float array;
   z: float array array}
 
 let min_dims = 3
@@ -101,10 +102,17 @@ let with_inc ?(x_col=0) ?(y_col=1) ?z_col ?stddev_col ?dist ?inc ?z_f ~(data:flo
   let x_width = widths.(x_col) in
   let y_width = widths.(y_col) in
   let z = Array.make_matrix ~dimx ~dimy 0.0 in
+  let x = Array.create ~len:dimx 0.0 in
+  let y = Array.create ~len:dimy 0.0 in
   let z_col = match z_col with Some z_col -> z_col | None -> Array.length maxes - 1 in
   for i = 0 to dimx - 1 do
+    let x_i = x_min +. Float.of_int i *. inc in
+    x.(i) <- x_i;
     for j = 0 to dimy - 1 do
-      let plot_point = [|x_min +. Float.of_int i *. inc; y_min +. Float.of_int j *. inc|] in
+      let y_j = y_min +. Float.of_int j *. inc in
+      printf "[model-vis.interpolater] y[%d]=%f\n" i y_j;
+      y.(j) <- y_j;
+      let plot_point = [|x_i;y_j|] in
       let z_i_j = _output ?z_f ~x_col ~y_col ~z_col ?stddev_col ?dist ~plot_point ~data |> Array.last in
       if verbose then printf "[model-vis.interpolater] z[%d][%d]=%f\n" i j z_i_j else ();
       z.(i).(j) <- z_i_j
@@ -117,4 +125,4 @@ let with_inc ?(x_col=0) ?(y_col=1) ?z_col ?stddev_col ?dist ?inc ?z_f ~(data:flo
   x_col;y_col;z_col;
   x_width;y_width;z_width;
   x_min;y_min;x_max;y_max;
-  z_min;z_max;z}
+  z_min;z_max;x;y;z}

@@ -15,13 +15,26 @@ module XY =
 
 module XY_Frame = Data_frame.Enum.Make(XY)
 
-module Plot = Surface_plot.Make(XY_Frame)
+module Surface_plot = Surface_plot.Make(XY_Frame)
 
-let plot ?(device=`qtwidget) ?(trials=1000) () =
+let surface_plot ?(device=`qtwidget) ?(trials=1000) () =
   let data_stream = Gen.init ~limit:trials
     (fun _ -> sum_sqr ()) in
-  Plot.create
+  Surface_plot.create
   ~tag:"two-sqr-gauss"
   ~title:"Sum of Two Squared Gaussians"
   ~device
   ~feature1:`X ~feature2:`Y ~output:`Z data_stream
+
+module Surface_3d_plot = Surface_3d_plot.Make(XY_Frame)
+let surface_3d_plot
+  ?(device=`qtwidget) ?(trials=1000) () =
+  let data_stream = Gen.init ~limit:trials
+    (fun _ -> sum_sqr ()) in
+  Surface_3d_plot.create
+  ~tag:"two-sqr-gauss"
+  ~title:"Sum of Two Squared Gaussians"
+  ~device
+  ~feature1:`X ~feature2:`Y ~output:`Z data_stream
+
+
