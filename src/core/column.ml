@@ -1,7 +1,7 @@
 open Core.Std
 type t = float array
 
-let maybe_assign f (data: Sampler.t) =
+let maybe_assign f (data: Data_stream.t) =
   match Gen.next data with
   | None -> Array.empty ()
   | Some arr -> Array.copy arr |> fun values ->

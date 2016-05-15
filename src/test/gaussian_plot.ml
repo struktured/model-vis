@@ -13,12 +13,12 @@ module XY =
     let domain _ = `Range (Float.neg_infinity, Float.infinity)
   end
 
-module XY_Feature = Feature.Enum_feature(XY)
+module XY_Frame = Data_frame.Enum.Make(XY)
 
-module Plot = Surface_plot.Make(XY_Feature)
+module Plot = Surface_plot.Make(XY_Frame)
 
 let plot ?(device=`qtwidget) ?(trials=1000) () =
-  let sampler = Gen.init ~limit:trials
+  let data_stream = Gen.init ~limit:trials
     (fun _ -> sum_sqr ()) in
   Plot.create
   ?inc:None
@@ -27,4 +27,4 @@ let plot ?(device=`qtwidget) ?(trials=1000) () =
   ~title:"Sum of Two Squared Gaussians"
   ~device
   ?stddev:None
-  ~feature1:`X ~feature2:`Y ~output:`Z ~sampler
+  ~feature1:`X ~feature2:`Y ~output:`Z data_stream

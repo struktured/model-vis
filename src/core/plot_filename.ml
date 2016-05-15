@@ -6,7 +6,7 @@ let time_str () =
   let now = CalendarLib.Date.today () in
   CalendarLib.Printer.Date.to_string now
 
-module Make(F: Feature.S) =
+module Make(F: Data_frame.S) =
 struct
 type t = string
 

@@ -19,9 +19,13 @@ sig
   val to_int : t -> int
 
   val of_int : int -> t option
+
 end
 
-module type Enum_S =
+module Enum =
+struct
+module type DATA_FRAME = S
+module type S =
 sig
   type t [@@deriving enum]
   val to_string : t -> string
@@ -29,7 +33,7 @@ sig
   val domain : t -> [`Range of float * float | `Points of float list]
 end
 
-module Enum_feature(Enum:Enum_S) : S with type t = Enum.t =
+module Make(Enum:S) : DATA_FRAME with type t = Enum.t =
 struct
   include Enum
   let all = Gen.int_range min max
@@ -55,22 +59,57 @@ struct
   let to_int = to_enum
   let of_int = of_enum
 end
+end
 
-module Generic_features(C: sig val count : int end) : S = struct  
-  module E : Enum_S = struct
+module Generic =
+struct
+module type DATA_FRAME = S
+
+module Attributes = struct
+module type SIZE = sig val size : int end
+
+module type PREFIX = sig val prefix : string end
+module Default_prefix : PREFIX = struct let prefix = "Feature" end
+
+module type DOMAIN = sig val domain : float * float end
+module Default_domain : DOMAIN = struct let domain = 0.0, 1.0 end
+module type S =
+sig
+  include SIZE
+  include PREFIX
+  include DOMAIN
+end
+
+module Make(Size:SIZE)(Prefix:PREFIX)(Domain:DOMAIN) : S =
+struct
+  let size = Size.size
+  let prefix = Prefix.prefix
+  let domain = Domain.domain
+end
+
+module Of_size(Size:SIZE) : S =
+struct
+  include Make(Size)(Default_prefix)(Default_domain)
+end
+end
+
+module Make(Attr: Attributes.S) : DATA_FRAME with type t = int =
+struct
+  module E : Enum.S with type t = int = struct
     type t = int
-    let min = 0 
-    let max = C.count
+    let min = 0
+    let max = Attr.size
     let to_enum t = t
     let of_enum i = if i < max then Some i else None
     let to_string i = Printf.sprintf "Feature %d" i
-    let of_string s = String.split ~on:' ' s |> 
-                      function | ["Feature"; i_str] -> Some (Int.of_string i_str)
+    let of_string s = String.split ~on:' ' s |>
+                      function | [label; i_str] when label=Attr.prefix -> Some (Int.of_string i_str)
                                | _ -> None
-    let domain _ = `Range (Float.neg_infinity, Float.infinity)
+    let domain t = let l,r = Attr.domain in `Range (l, r)
   end
-  module Enum = Enum_feature(E)
+  module Enum = Enum.Make(E)
   include Enum
+end
 end
 
 module In_out(In:S)(Out:S) : S with type t = [`In of In.t | `Out of Out.t] =

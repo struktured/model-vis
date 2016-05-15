@@ -17,7 +17,7 @@ let shedge ~ns ~z_min ~z_max =
         z_min +. (z_max -. z_min) *. Float.of_int i /. Float.of_int ns
     )
 
-module Make(F:Feature.S) =
+module Make(F:Data_frame.S) =
 struct
 module F_compare = Data_sort.Feature_compare(F)
 module Plot_filename = Plot_filename.Make(F)
@@ -62,7 +62,7 @@ let create
     ~(feature2:F.t)
     ~(output:F.t)
     ?(stddev:F.t option)
-    ~(sampler:Sampler.t) =
+    (data_stream:Data_stream.t) =
   let cont_color = 0 in
   let cont_width = 0.0 in
 
@@ -80,8 +80,8 @@ let create
 
     (* Initialize plplot *)
   plinit ();
-  let raw_data : float array array = sampler
-    |> Data_sort.sort_floats |> Gen.to_array in
+  let raw_data : float array array = data_stream
+    |> Data_sort.sort_floats |> Data_stream.to_array in
   let open Interpolater in
   let {z;x_min;y_min;x_max;y_max;z_min;z_max;inc} =
     with_inc ~x_col:(F.to_int feature1) ~y_col:(F.to_int feature2) ~z_col:(F.to_int output)
@@ -124,14 +124,14 @@ let create
     ?ns
     ~(output:F.t)
     ?(stddev:F.t option)
-    ~(sampler:Sampler.t) =
+    (data_stream:Data_stream.t) =
     let all_but_outputs = Array.filter ~f:(fun x -> not (x = output || Some x = stddev)) F.all in
-    let data = Gen.to_array sampler in
+    let data = Data_stream.to_array data_stream in
     Array.iter
       ~f:(fun feature1 -> Array.iter ~f:(fun feature2 ->
         if (feature1 = feature2) then () else 
         create ?ns ?fname:None ?tag ~feature1 ~feature2 ?dist ?z_f ?inc 
-          ?device ?title ~output ?stddev ~sampler:(Gen.of_array data)) 
+          ?device ?title ~output ?stddev (Data_stream.of_array data))
           all_but_outputs)
       all_but_outputs;
     ()

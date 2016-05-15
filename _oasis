@@ -23,7 +23,7 @@ Library "model-vis"
   Pack:               false
   Build:              true
   Path:               src/core
-  Modules:            Feature, Stat_feature, Sampler, Column, Csv_parser, Data_sort, Omega, Interpolater, Plot_filename, Plot_device, Surface_plot
+  Modules:            Data_frame, Stat_frame, Data_stream, Column, Csv_source, Data_sort, Omega, Interpolater, Plot_filename, Plot_device, Surface_plot
   BuildDepends:       core, threads, containers, gen, plplot, containers, ppx_deriving, ppx_deriving.enum, ppx_deriving.show, ppx_deriving.ord, oml, calendar, csv
   XMETADescription:   Model visualization core library
 

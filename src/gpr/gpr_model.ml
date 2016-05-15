@@ -175,8 +175,8 @@ open Lacaml.D
 
 exception Bailout
 
-let read_test_samples sampler big_dim =
-  let samples = Gen.to_array sampler in
+let read_test_samples test_data_stream big_dim =
+  let samples = Gen.to_array test_data_stream in
   let n = Array.length samples in
   if n = 0 then Mat.empty
   else begin
@@ -197,17 +197,17 @@ let read_model model_file : Model.t =
   In_channel.close ic;
   model
 
-module Uniform_sampler(F:Feature.S) =
+module Uniform_test_data_stream(F:Data_frame.S) =
 struct
-  module Default_sampler = Sampler.Uniform(F)
+  module Default_test_data_stream = Data_stream.Uniform(F)
   let create args =
-   Default_sampler.create ~trials:
-     (Option.value ~default:Sampler.default_trials args.Args.samples) ()
+   Default_test_data_stream.create ~trials:
+     (Option.value ~default:Data_stream.default_trials args.Args.samples) ()
 end
 
-module Make(Inputs:Feature.S)(Outputs:Feature.S) = struct
-module In_out = Feature.In_out(Inputs)(Outputs)
-let eval (sampler:Sampler.t) args : Sampler.t =
+module Make(Inputs:Data_frame.S)(Outputs:Data_frame.S) = struct
+module In_out = Data_frame.In_out(Inputs)(Outputs)
+let eval (test_data_stream:Data_stream.t) args : Data_stream.t =
  let { Args.model_file; with_stddev; predictive} = args in
   let
     {
@@ -217,39 +217,36 @@ let eval (sampler:Sampler.t) args : Sampler.t =
     } = read_model model_file
   in
   let big_dim = Vec.dim input_stddevs in
-  let raw_inputs = read_test_samples sampler big_dim in
-  let data_array = Mat.transpose_copy raw_inputs |> Mat.to_array in
-  let n_inputs = Mat.dim2 raw_inputs in
+  let data_mat = read_test_samples test_data_stream big_dim in
+  let data_array = Mat.transpose_copy data_mat |> Mat.to_array in
+  let n_inputs = Mat.dim2 data_mat in
   for i = 1 to big_dim do
     let mean = input_means.{i} in
     let stddev = input_stddevs.{i} in
     for j = 1 to n_inputs do
-      raw_inputs.{i, j} <- (raw_inputs.{i, j} -. mean) /. stddev;
+      data_mat.{i, j} <- (data_mat.{i, j} -. mean) /. stddev;
     done;
   done;
   let mean_predictor = FIC.Mean_predictor.calc inducing_points ~coeffs in
   let inducing = FIC.Inducing.calc kernel inducing_points in
-  let inputs = FIC.Inputs.calc raw_inputs inducing in
+  let inputs = FIC.Inputs.calc data_mat inducing in
   let means = FIC.Means.get (FIC.Means.calc mean_predictor inputs) in
   let renorm_mean mean = mean +. target_mean in
   print_endline @@ "data_array length 1 " ^ (Int.to_string (Array.length data_array));
   print_endline @@ "data_array length 2 " ^ (Int.to_string (Array.length (data_array.(0))));
-  let gen : Sampler.t = Gen.of_array data_array in
+  let data_stream' : Data_stream.t = Data_stream.of_array data_array in
   if with_stddev then
     let co_variance_predictor =
       FIC.Co_variance_predictor.calc kernel inducing_points co_variance_coeffs
     in
     let vars = FIC.Variances.calc co_variance_predictor ~sigma2 inputs in
     let vars = FIC.Variances.get ~predictive vars in
-    let cnt = ref 0 in
-    Gen.map (fun (arr:float array) ->
-      let i = !cnt in cnt := !cnt + 1;
-      Array.concat [arr; [|renorm_mean means.{i};sqrt vars.{i}|]]) gen
+    Data_stream.mapi ~f:(fun i (arr:float array) ->
+      Array.append arr [|renorm_mean means.{i};sqrt vars.{i}|]) data_stream'
   else
-   Gen.map2 (fun (arr:float array) mean ->
-        Array.concat [arr; [|renorm_mean mean|]]) gen
-      (Gen.of_array (Vec.to_array means))
-end
+   Data_stream.mapi ~f:(fun i (arr:float array) ->
+     Array.append arr [|renorm_mean means.{i}|]) data_stream'
+  end
 
-module Make_with_stats(Inputs:Feature.S) =
-  Make(Inputs)(Stat_feature.Stat_feature)
+module Make_with_stats(Inputs:Data_frame.S) =
+  Make(Inputs)(Stat_frame)
