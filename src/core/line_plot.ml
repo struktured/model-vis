@@ -1,6 +1,6 @@
 open Plplot
 open Core.Std
-
+let nyi x = failwith("nyi")
 module Make(F:Data_frame.S) =
 struct
 module F_compare = Data_sort.Feature_compare(F)
@@ -9,6 +9,9 @@ let create
     ~(feature:F.t)
     ~(output:F.t)
     ?fname
+    ?dist
+    ?z_f
+    ?inc
     ?(device=`png)
     ?tag
     ?title
@@ -29,25 +32,24 @@ let create
 
     (* Initialize plplot *)
   plinit ();
-  let raw_data : float array array = data_stream
+
+  let _ : float array array = data_stream
     |> Data_sort.sort_floats |> Data_stream.to_array in
+  (*let {z;x;y;x_min;y_min;x_max;y_max;z_min;z_max;inc} = 
+    with_inc ~x_col:(F.to_int feature) ?y_col:None ~z_col:(F.to_int output)
+    ?dist ?inc ?stddev_col:(Option.map ~f:F.to_int stddev) ?z_f ~data:raw_data *) 
   pladv 0;
   plvpor 0.1 0.9 0.1 0.9;
-  let (x_max,y_max) = Column.max @@ Data_stream.of_array raw_data |>
-  fun arr -> F.get feature arr |> Option.value ~default:Float.neg_infinity,
-    F.get output arr |> Option.value ~default:Float.neg_infinity in
-  let (x_min,y_min) = Column.min @@ Data_stream.of_array raw_data |>
-  fun arr -> F.get feature arr |> Option.value ~default:Float.infinity,
-    F.get output arr |> Option.value ~default:Float.infinity in
-  plwind x_min x_max y_min y_max;
+  (*plwind x_min x_max y_min y_max *); 
   plpsty 0;
 
+  (*
   let x = F.sub_array [feature] raw_data |> Gen.of_array |>
     Gen.map (function [|x|] -> x | _ -> failwith("not expected")) |> Gen.to_array in
   let y = F.sub_array [output] raw_data |> Gen.of_array |>
     Gen.map (function [|x|] -> x | _ -> failwith("not expected")) |> Gen.to_array in
   plline x y;
-
+ *)
   plcol0 1;
   plbox "bcnst" 0.0 0 "bcnstv" 0.0 0;
   plcol0 2;

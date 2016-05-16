@@ -12,6 +12,7 @@ module Make(F:Data_frame.S) =
 struct
 module F_compare = Data_sort.Feature_compare(F)
 module Plot_filename = Plot_filename.Make(F)
+module F_XYZ = Interpolater.XYZ(F)
 let colorbar ~inc ?color ?contour values ~(output:F.t) =
   (* Smaller text *)
   plschr 0.0 0.5;
@@ -73,10 +74,21 @@ let create
   plinit ();
   let raw_data : float array array = data_stream
     |> Data_sort.sort_floats |> Data_stream.to_array in
-  let open Interpolater in
-  let {z;x;y;x_min;y_min;x_max;y_max;z_min;z_max;inc} =
-    with_inc ~x_col:(F.to_int feature1) ~y_col:(F.to_int feature2) ~z_col:(F.to_int output)
-    ?dist ?inc ?stddev_col:(Option.map ~f:F.to_int stddev) ?z_f ~data:raw_data in
+let open F_XYZ in
+  let module Dim = Interpolater.Dim in
+  let module Vector = Interpolater.Vector in
+  
+  let {x_dim;y_dim;z_dim;dims} as interp (*{z;x_min;y_min;x_max;y_max;z_min;z_max;inc} *) =
+    F_XYZ.with_inc ~x_col:feature1 ~y_col:feature2 ~z_col:output
+    ?dist ?inc ?stddev_col:stddev ?z_f raw_data in
+  let z_max = z_dim.Dim.max in
+  let x_max = x_dim.Dim.max in
+  let y_max = y_dim.Dim.max in
+  let z_min = z_dim.Dim.min in
+  let x_min = x_dim.Dim.min in
+  let y_min = y_dim.Dim.min in
+  let inc = z_dim.Dim.inc in
+  let z = Vector.as_matrix z_dim.Dim.points in
   let shedge = shedge ~ns ~z_min ~z_max in
   pladv 0;
   plvpor 0.1 0.9 0.1 0.9;
@@ -96,6 +108,8 @@ let create
     alt az;
 
   plpsty 0;
+  let x = x_dim.Dim.points |> Vector.to_array_exn in
+  let y = y_dim.Dim.points |> Vector.to_array_exn in
 
   plsurf3d x y z style shedge;
 
