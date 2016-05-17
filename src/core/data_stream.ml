@@ -102,7 +102,7 @@ struct
     begin
       Array.mapi ~f:(fun (i:int) r_v ->
       Array.mapi ~f:(fun (j:int) c_v ->
-        Printf.printf "[map_each2ij] i=%d j=%d r_v=%f c_v=%f\n" i j r_v c_v;
+        (*Printf.printf "[map_each2ij] i=%d j=%d r_v=%f c_v=%f\n" i j r_v c_v ;*)
         f ~i ~j r_v c_v) d_j) d_i |> of_array
     end
     | _ -> failwith("input data streams are not rows or columns")

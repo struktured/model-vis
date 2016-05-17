@@ -213,7 +213,7 @@ let apply ?x_col ?y_col ?stddev_col ?dist ?inc ?interp (data:float array array) 
   let x_dim = Dims.to_dim1 dims `X x_col in
   let f i point = _output ?interp ~x_col ~y_col ?z_col:None ?stddev_col ?dist ~point data
     |> Array.last |> fun y ->
-        if verbose then printf "[model-vis.interpolater] z[%d]=%f\n" i y else ();y in
+        if verbose then printf "[model-vis.interpolater] y[%d]=%f\n" i y else ();y in
   let x_points = x_dim.Dim.points |> Vector.to_array_exn in
   let y_points = Array.mapi (fun i x -> f i [|x|]) x_points in
   let y_dim = Dims.to_dim1 ~points:y_points dims `Y y_col in

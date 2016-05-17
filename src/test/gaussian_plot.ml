@@ -17,15 +17,14 @@ module XY =
 module XY_Frame = Data_frame.Enum.Make(XY)
 
 module Surface_plot = Surface_plot.Make(XY_Frame)
-let surface_plot ?(device=default_device) ?(trials=1000) () =
+let surface_plot ?(device=default_device) ?(trials=defaul_trials) () =
   let data_stream = Gen.init ~limit:trials
     (fun _ -> sum_sqr ()) in
-  Surface_plot.create
-  ~inc:0.05
-  ~tag:"two-sqr-gauss"
-  ~title:"Sum of Two Squared Gaussians"
+  Surface_plot.for_each_feature
+  ~tag:"two-sqr-gauss-surf"
+  ~title:"Sum of Two Squared Gaussians (Surface Plot)"
   ~device
-  ~feature1:`X ~feature2:`Y ~output:`Z data_stream
+  ~output:`Z data_stream
 
 module Surface_3d_plot = Surface_3d_plot.Make(XY_Frame)
 
@@ -33,12 +32,11 @@ let surface_3d_plot
   ?(device=default_device) ?(trials=defaul_trials) () =
   let data_stream = Gen.init ~limit:trials
     (fun _ -> sum_sqr ()) in
-  Surface_3d_plot.create
-  ~inc:0.05
-  ~tag:"two-sqr-gauss"
-  ~title:"Sum of Two Squared Gaussians"
+  Surface_3d_plot.for_each_feature
+  ~tag:"two-sqr-gauss-surf-3d"
+  ~title:"Sum of Two Squared Gaussians (3d Surface Plot)"
   ~device
-  ~feature1:`X ~feature2:`Y ~output:`Z data_stream
+  ~output:`Z data_stream
 
 module Line_plot = Line_plot.Make(XY_Frame)
 
@@ -46,12 +44,8 @@ let line_plot
   ?(device=default_device) ?(trials=defaul_trials) () =
   let data_stream = Data_stream.init ~stop:trials
     (fun _ -> sum_sqr ()) in
-  Line_plot.create
-  ~inc:0.05
-  ~tag:"two-sqr-gauss"
-  ~title:"Sum of Two Squared Gaussians"
+  Line_plot.for_each_feature
+  ~tag:"two-sqr-gauss-line"
+  ~title:"Sum of Two Squared Gaussians (Line Plot)"
   ~device
-  ~feature:`X ~output:`Z data_stream
-
-
-
+  ~output:`Z data_stream
