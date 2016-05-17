@@ -45,7 +45,13 @@ Library "test-core"
   Modules:            Gaussian_plot
   BuildDepends:       model-vis, oml
   FindLibParent:      model-vis
-  XMETADescription:   Test suite
+  XMETADescription:   Test suite Library
 
+Executable "plot-all-test"
+  Build$:             flag(all) || flag(tests)
+  Install$:           flag(all) || flag(tests)
+  Path:               src/test
+  MainIs:             plot_all_test.ml
+  BuildDepends:       model-vis.test-core
 
 AlphaFeatures : ocamlbuild_more_args

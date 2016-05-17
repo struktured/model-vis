@@ -87,9 +87,11 @@ let create
   let open F_XYZ in
   let module Dim = Interpolater.Dim in
   let module Vector = Interpolater.Vector in
+  print_endline "about to interp ";
   let {x_dim;y_dim;z_dim;dims} as interp (*{z;x_min;y_min;x_max;y_max;z_min;z_max;inc} *) =
-    F_XYZ.with_inc ~x_col:feature1 ~y_col:feature2 ~z_col:output
+    F_XYZ.apply ~x_col:feature1 ~y_col:feature2 ~z_col:output
     ?dist ?inc ?stddev_col:stddev ?interp raw_data in
+  print_endline "interp'ed";
   let z_max = z_dim.Dim.max in
   let x_max = x_dim.Dim.max in
   let y_max = y_dim.Dim.max in
@@ -143,7 +145,7 @@ let create
     Array.iter
       ~f:(fun feature1 -> Array.iter ~f:(fun feature2 ->
         if (feature1 = feature2) then () else 
-        create ?ns ?fname:None ?tag ~feature1 ~feature2 ?dist ?interp ?inc 
+        create ?ns ?fname:None ?tag ~feature1 ~feature2 ?dist ?interp ?inc
           ?device ?title ~output ?stddev (Data_stream.of_array data))
           all_but_outputs)
       all_but_outputs;

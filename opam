@@ -8,7 +8,7 @@ dev-repo: "git://github.com/struktured/model-vis.git#master"
 bug-reports: "https://github.com/struktured/model-vis/issues"
 
 build: [
-  ["./configure" "--enable-debug" "--enable-profile" "--%{gpr:enable}%-gpr" "--enable-tests"]
+  ["./configure" "--bindir=`opam config var bin`" "--enable-debug" "--enable-profile" "--%{gpr:enable}%-gpr" "--enable-tests"]
   [make "-j4"]
 ]
 

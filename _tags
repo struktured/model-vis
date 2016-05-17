@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: e44b9457af233676a1f7778a2f3f438d)
+# DO NOT EDIT (digest: 60ca4d70efadea8bc4590b45eaec592e)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -46,6 +46,21 @@ true: annot, bin_annot
 <src/gpr/*.ml{,i,y}>: use_model-vis
 # Library test-core
 "src/test/test-core.cmxs": use_test-core
+# Executable plot-all-test
+"src/test/plot_all_test.byte": package(calendar)
+"src/test/plot_all_test.byte": package(containers)
+"src/test/plot_all_test.byte": package(core)
+"src/test/plot_all_test.byte": package(csv)
+"src/test/plot_all_test.byte": package(gen)
+"src/test/plot_all_test.byte": package(oml)
+"src/test/plot_all_test.byte": package(plplot)
+"src/test/plot_all_test.byte": package(ppx_deriving)
+"src/test/plot_all_test.byte": package(ppx_deriving.enum)
+"src/test/plot_all_test.byte": package(ppx_deriving.ord)
+"src/test/plot_all_test.byte": package(ppx_deriving.show)
+"src/test/plot_all_test.byte": package(threads)
+"src/test/plot_all_test.byte": use_model-vis
+"src/test/plot_all_test.byte": use_test-core
 <src/test/*.ml{,i,y}>: package(calendar)
 <src/test/*.ml{,i,y}>: package(containers)
 <src/test/*.ml{,i,y}>: package(core)
@@ -59,4 +74,5 @@ true: annot, bin_annot
 <src/test/*.ml{,i,y}>: package(ppx_deriving.show)
 <src/test/*.ml{,i,y}>: package(threads)
 <src/test/*.ml{,i,y}>: use_model-vis
+<src/test/*.ml{,i,y}>: use_test-core
 # OASIS_STOP

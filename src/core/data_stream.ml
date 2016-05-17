@@ -3,6 +3,8 @@ open Core.Std
 module type S =
 sig
   type t
+  val init : ?start:int -> ?stop:int ->
+    (int -> float array) -> t
   val to_gen : t -> float array Gen.t
   val to_array : t -> float array array
   val of_gen : float array Gen.t -> t
@@ -33,6 +35,8 @@ let default_trials = 10000
 module Impl : S with type t = float array Gen.t =
 struct
   type t = float array Gen.t
+  let init ?(start=0) ?(stop=Int.max_value) f
+    = Gen.int_range start (stop-1) |> Gen.map f
   let of_list = Gen.of_list
   let of_row = Gen.singleton
   let of_col t = Gen.of_array t |> Gen.map (fun x -> [|x|])
@@ -98,6 +102,7 @@ struct
     begin
       Array.mapi ~f:(fun (i:int) r_v ->
       Array.mapi ~f:(fun (j:int) c_v ->
+        Printf.printf "[map_each2ij] i=%d j=%d r_v=%f c_v=%f\n" i j r_v c_v;
         f ~i ~j r_v c_v) d_j) d_i |> of_array
     end
     | _ -> failwith("input data streams are not rows or columns")

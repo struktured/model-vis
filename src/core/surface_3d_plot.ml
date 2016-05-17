@@ -74,12 +74,11 @@ let create
   plinit ();
   let raw_data : float array array = data_stream
     |> Data_sort.sort_floats |> Data_stream.to_array in
-let open F_XYZ in
+  let open F_XYZ in
   let module Dim = Interpolater.Dim in
   let module Vector = Interpolater.Vector in
-  
   let {x_dim;y_dim;z_dim;dims} as interp (*{z;x_min;y_min;x_max;y_max;z_min;z_max;inc} *) =
-    F_XYZ.with_inc ~x_col:feature1 ~y_col:feature2 ~z_col:output
+    F_XYZ.apply ~x_col:feature1 ~y_col:feature2 ~z_col:output
     ?dist ?inc ?stddev_col:stddev ?interp raw_data in
   let z_max = z_dim.Dim.max in
   let x_max = x_dim.Dim.max in

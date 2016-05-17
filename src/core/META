@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 4d21b1c8f5d2abbab626c36cc1970ef6)
+# DO NOT EDIT (digest: 1bbbba45d3f48bf68696235af3bdf1a5)
 version = "0.1"
 description = "Model visualization core library"
 requires =
@@ -11,7 +11,7 @@ archive(native, plugin) = "model-vis.cmxs"
 exists_if = "model-vis.cma"
 package "test-core" (
  version = "0.1"
- description = "Test suite"
+ description = "Test suite Library"
  requires = "model-vis oml"
  archive(byte) = "test-core.cma"
  archive(byte, plugin) = "test-core.cma"
