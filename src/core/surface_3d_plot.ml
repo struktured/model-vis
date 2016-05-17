@@ -93,10 +93,10 @@ let create
   plvpor 0.1 0.9 0.1 0.9;
 
   (* TODO how to set these values properly *)
-  let base_x = inc in
-  let base_y = inc in
-  let height = inc in
-  let alt = 75. in
+  let base_x = (x_dim.Dim.max -. x_dim.Dim.min) /. 1.5 in
+  let base_y = (y_dim.Dim.max -. y_dim.Dim.min) /. 1.5 in
+  let height = (z_dim.Dim.max -. z_dim.Dim.min) /. 4.0 in
+  let alt = 25. in
   let az = 0. in
   plwind x_min x_max y_min y_max;
   plw3d
