@@ -2,9 +2,9 @@ open Core.Std
 module Array = Array
 
 
-type z_fun = (float * float) array -> float
+type interp = (float * float) array -> float
 
-let first_min_dist : z_fun = fun dists ->
+let first_min_dist : interp = fun dists ->
  let z, w_star, v_star = Array.foldi
       ~f:(fun i (z, w_star, v_star) (w, v) ->
         let z' = z +. v in
@@ -15,7 +15,7 @@ let first_min_dist : z_fun = fun dists ->
           ~init:(0.0, Float.infinity, Float.nan) dists in
   v_star
 
-let exp_avg : z_fun = fun dists ->
+let exp_avg : interp = fun dists ->
     let d_sum, v_sum = Array.fold
      ~f:(fun (d_sum, v_sum) (d, v) ->
         let exp_inv_d = exp (-.d) in
@@ -26,7 +26,7 @@ let exp_avg : z_fun = fun dists ->
     v_sum /. d_sum
 
 let default_top_n = 3
-let exp_avg_top_n ?(n=default_top_n) : z_fun = fun  dists ->
+let exp_avg_top_n ?(n=default_top_n) : interp = fun  dists ->
     Gen.of_array dists |> Gen.sort ~cmp:(fun (x,y) (x',y') -> Float.compare x x')
     |> Gen.chunks n |> Gen.next |> function
     | None -> 0.0
@@ -44,22 +44,21 @@ let mse_dist : dist_fun =
 
 let default_dist = exp_mse
 
-let _output ?(z_f=exp_avg) ~x_col ?y_col ~z_col ?stddev_col ?(dist=default_dist)
+let _output ?(interp=exp_avg) ~(x_col:int) ~(y_col:int) ?(z_col:int option) ?stddev_col ?(dist=default_dist)
   ~(point:float array) (data:float array array) =
   let arr_dist_map point row = Array.mapi ~f:(fun i e ->
       match i with
       | 0 -> dist i e row.(x_col)
-      | 1 -> Option.value_exn
-        ~message:"y_col index must be given if point vector is greater than size 2" y_col |>
-        fun y_col -> dist i e row.(y_col)
+      | 1 -> dist i e row.(y_col)
       | x -> failwith @@ sprintf "unexpected point size %d" x) point in
   let arr_dist point (row:float array) =
     let arr = arr_dist_map point row in
     let dist_sum = Array.fold ~f:(+.) ~init:0.0 arr in
-    let z_val = row.(z_col) in
-    dist_sum, z_val in
+    let output_col =
+      begin match z_col with Some i -> i | None -> y_col end in
+    dist_sum, arr.(output_col) in
   let dists = Array.map (arr_dist point) data in
-  let v_star = z_f dists in
+  let v_star = interp dists in
   Array.append point [|v_star|]
 
 let verbose = true (*TODO expose*)
@@ -138,13 +137,15 @@ let of_data ?inc data =
   {maxes;mins;lens;widths;data=data_stream_transpose |> Data_stream.to_array;
   incs=Array.create ~len:data_len inc}
 
-let to_dim1 dims axis col =
+let to_dim1 ?points dims axis col =
   let len = dims.lens.(col) in
   let min = dims.mins.(col) in
   let inc = dims.incs.(col) in
-  let points = Gen.int_range 0 len |> Gen.fold_map
+  let points = match points with
+    | Some p -> `Col p
+    | None -> Gen.int_range 0 (len-1) |> Gen.fold_map
     (fun acc i -> acc +. Float.of_int i *. inc) min
-  |> Gen.to_array |> fun x -> `Col x in
+      |> Gen.to_array |> fun x -> `Col x in
   Dim.{axis;col;points;
     inc;
     len;
@@ -182,19 +183,39 @@ type t = {
   z_dim : dimension;
 } [@@deriving show, ord]
 module F = F
-let with_inc ?x_col ?y_col ?z_col ?stddev_col ?dist ?inc ?z_f (data:float array array) =
+let with_inc ~x_col ~y_col ~z_col ?stddev_col ?dist ?inc ?interp (data:float array array) =
   let dims = Dims.of_data ?inc data in
   let open Dims in
-  let data_len = Array.length dims.maxes in
+  let x_dim = Dims.to_dim1 dims `X (F.to_int x_col) in
+  let y_dim = Dims.to_dim1 dims `Y (F.to_int y_col) in
+  let f ~i ~j point = _output ?interp ~x_col:(F.to_int x_col) ~y_col:(F.to_int y_col) 
+   ~z_col:(F.to_int z_col) ?stddev_col ?dist ~point data
+    |> fun arr -> Array.get arr (F.to_int z_col) |> fun z ->
+        if verbose then printf "[model-vis.interpolater] z[%d][%d]=%f\n" i j z else ();z in
+  let z_dim = Dims.to_dim2 dims `Z (F.to_int z_col) x_dim.Dim.points y_dim.Dim.points f in
+  {x_dim;y_dim;z_dim; dims}
+end
+
+
+module XY(F:Data_frame.S) =
+struct
+type t = {
+  dims : dimensions;
+  x_dim : dimension;
+  y_dim : dimension;
+} [@@deriving show, ord]
+module F = F
+let with_inc ?x_col ?y_col ?stddev_col ?dist ?inc ?interp (data:float array array) =
+  let dims = Dims.of_data ?inc data in
+  let open Dims in
   let x_col = match x_col with Some x_col -> F.to_int x_col | None -> 0 in
   let y_col = match y_col with Some y_col -> F.to_int y_col | None -> 1 in
-  let z_col = match z_col with
-    Some z_col -> F.to_int z_col | None -> data_len - 1 in
   let x_dim = Dims.to_dim1 dims `X x_col in
-  let y_dim = Dims.to_dim1 dims `Y y_col in
-  let f ~i ~j point = _output ?z_f ~x_col ~y_col ~z_col ?stddev_col ?dist ~point data
-    |> fun arr -> Array.get arr z_col |> fun z ->
-        if verbose then printf "[model-vis.interpolater] z[%d][%d]=%f\n" i j z else ();z in
-  let z_dim = Dims.to_dim2 dims `Z z_col x_dim.Dim.points y_dim.Dim.points f in
-  {x_dim;y_dim;z_dim; dims}
+  let f i point = _output ?interp ~x_col ~y_col ?z_col:None ?stddev_col ?dist ~point data
+    |> fun arr -> Array.get arr y_col |> fun y ->
+        if verbose then printf "[model-vis.interpolater] z[%d]=%f\n" i y else ();y in
+  let x_points = x_dim.Dim.points |> Vector.to_array_exn in
+  let y_points = Array.mapi (fun i x -> f i [|x|]) x_points in
+  let y_dim = Dims.to_dim1 ~points:y_points dims `Y y_col in
+  {x_dim;y_dim;dims}
 end
