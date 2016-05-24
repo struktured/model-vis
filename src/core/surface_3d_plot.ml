@@ -2,10 +2,10 @@ open Plplot
 open Core.Std
 
 let default_ns = 30           (* Default number of shade levels *)
-let shedge ~ns ~z_min ~z_max =
+let shedge ~ns ~zmin ~zmax =
     Array.init (ns + 1) (
       fun i ->
-        z_min +. (z_max -. z_min) *. Float.of_int i /. Float.of_int ns
+        zmin +. (zmax -. zmin) *. Float.of_int i /. Float.of_int ns
     )
 
 module Make(F:Data_frame.S) =
@@ -47,9 +47,11 @@ let create
     ~(output:F.t)
     ?fname
     ?dist
-    ?base_x
+    ?alt
+    ?az
+    (*?base_x
     ?base_y
-    ?height
+    ?height*)
     ?interp
     ?inc
     ?(style=[])
@@ -83,37 +85,21 @@ let create
   let {x_dim;y_dim;z_dim;dims} as interp (*{z;x_min;y_min;x_max;y_max;z_min;z_max;inc} *) =
     F_XYZ.apply ~x_col:feature1 ~y_col:feature2 ~z_col:output
     ?dist ?inc ?stddev_col:stddev ?interp raw_data in
-  let z_max = z_dim.Dim.max in
-  let x_max = x_dim.Dim.max in
-  let y_max = y_dim.Dim.max in
-  let z_min = z_dim.Dim.min in
-  let x_min = x_dim.Dim.min in
-  let y_min = y_dim.Dim.min in
+  let zmax = z_dim.Dim.max in
+  let xmax = x_dim.Dim.max in
+  let ymax = y_dim.Dim.max in
+  let zmin = z_dim.Dim.min in
+  let xmin = x_dim.Dim.min in
+  let ymin = y_dim.Dim.min in
   let inc = z_dim.Dim.inc in
   let z = Vector.as_matrix z_dim.Dim.points in
-  let shedge = shedge ~ns ~z_min ~z_max in
+  let shedge = shedge ~ns ~zmin ~zmax in
   pladv 0;
   plvpor 0.1 0.9 0.1 0.9;
 
-  (* TODO how to set these values properly *)
-  let base_x = match base_x with
-    | None -> x_dim.Dim.width /. 2.
-    | Some b -> b in
-  let base_y = match base_y with
-    | None -> y_dim.Dim.width /. 2.
-    | Some b -> b in
-  let height = match height with
-    | None -> z_dim.Dim.width
-    | Some b -> b in
-  let alt = 30. in
-  let az = -37.5 in
-  plwind (x_min) (x_max) (y_min) (y_max);
-  plw3d
-    base_x base_y height
-    x_min x_max
-    y_min y_max
-    z_min z_max
-    alt az;
+  let module N = Normalized_box in
+  let box = N.of_world ~padding:1.25 ~xmin ~xmax ~ymin ~ymax ~zmin ~zmax in
+  N.plwall ?alt ?az box;
 
   plpsty 0;
   let x = x_dim.Dim.points |> Vector.to_array_exn in

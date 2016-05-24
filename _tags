@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 60ca4d70efadea8bc4590b45eaec592e)
+# DO NOT EDIT (digest: 6baad47d52d0b67018ce4115c8a30810)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -25,6 +25,7 @@ true: annot, bin_annot
 <src/core/*.ml{,i,y}>: package(plplot)
 <src/core/*.ml{,i,y}>: package(ppx_deriving)
 <src/core/*.ml{,i,y}>: package(ppx_deriving.enum)
+<src/core/*.ml{,i,y}>: package(ppx_deriving.make)
 <src/core/*.ml{,i,y}>: package(ppx_deriving.ord)
 <src/core/*.ml{,i,y}>: package(ppx_deriving.show)
 <src/core/*.ml{,i,y}>: package(threads)
@@ -40,6 +41,7 @@ true: annot, bin_annot
 <src/gpr/*.ml{,i,y}>: package(plplot)
 <src/gpr/*.ml{,i,y}>: package(ppx_deriving)
 <src/gpr/*.ml{,i,y}>: package(ppx_deriving.enum)
+<src/gpr/*.ml{,i,y}>: package(ppx_deriving.make)
 <src/gpr/*.ml{,i,y}>: package(ppx_deriving.ord)
 <src/gpr/*.ml{,i,y}>: package(ppx_deriving.show)
 <src/gpr/*.ml{,i,y}>: package(threads)
@@ -56,6 +58,7 @@ true: annot, bin_annot
 "src/test/plot_all_test.byte": package(plplot)
 "src/test/plot_all_test.byte": package(ppx_deriving)
 "src/test/plot_all_test.byte": package(ppx_deriving.enum)
+"src/test/plot_all_test.byte": package(ppx_deriving.make)
 "src/test/plot_all_test.byte": package(ppx_deriving.ord)
 "src/test/plot_all_test.byte": package(ppx_deriving.show)
 "src/test/plot_all_test.byte": package(threads)
@@ -70,6 +73,7 @@ true: annot, bin_annot
 <src/test/*.ml{,i,y}>: package(plplot)
 <src/test/*.ml{,i,y}>: package(ppx_deriving)
 <src/test/*.ml{,i,y}>: package(ppx_deriving.enum)
+<src/test/*.ml{,i,y}>: package(ppx_deriving.make)
 <src/test/*.ml{,i,y}>: package(ppx_deriving.ord)
 <src/test/*.ml{,i,y}>: package(ppx_deriving.show)
 <src/test/*.ml{,i,y}>: package(threads)
