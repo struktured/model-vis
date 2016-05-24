@@ -47,6 +47,9 @@ let create
     ~(output:F.t)
     ?fname
     ?dist
+    ?base_x
+    ?base_y
+    ?height
     ?interp
     ?inc
     ?(style=[])
@@ -93,12 +96,18 @@ let create
   plvpor 0.1 0.9 0.1 0.9;
 
   (* TODO how to set these values properly *)
-  let base_x = (x_dim.Dim.max -. x_dim.Dim.min) /. 1.5 in
-  let base_y = (y_dim.Dim.max -. y_dim.Dim.min) /. 1.5 in
-  let height = (z_dim.Dim.max -. z_dim.Dim.min) /. 4.0 in
-  let alt = 25. in
-  let az = 0. in
-  plwind x_min x_max y_min y_max;
+  let base_x = match base_x with
+    | None -> x_dim.Dim.width /. 2.
+    | Some b -> b in
+  let base_y = match base_y with
+    | None -> y_dim.Dim.width /. 2.
+    | Some b -> b in
+  let height = match height with
+    | None -> z_dim.Dim.width
+    | Some b -> b in
+  let alt = 30. in
+  let az = -37.5 in
+  plwind (x_min) (x_max) (y_min) (y_max);
   plw3d
     base_x base_y height
     x_min x_max
@@ -129,7 +138,7 @@ let create
   plend ();
   ()
 
-  let for_each_feature
+let for_each_feature
     ?dist
     ?interp
     ?inc
@@ -145,11 +154,12 @@ let create
     Array.iter
       ~f:(fun feature1 -> Array.iter ~f:(fun feature2 ->
         if (feature1 = feature2) then () else
-        create ?ns ?fname:None ?tag ~feature1 ~feature2 ?dist ?interp ?inc
-          ?device ?title ~output ?stddev (Data_stream.of_array data))
+        create ?ns ?fname:None ?tag ~feature1 ~feature2 ?dist ?interp ?inc ?device
+          ?title ~output ?stddev (Data_stream.of_array data))
           all_but_outputs)
       all_but_outputs;
     ()
+
 
 end
 
