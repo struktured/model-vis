@@ -128,7 +128,8 @@ let of_data ?inc data =
   let data_len = Array.length maxes in
   let mins = Column.min (Gen.of_array data) in
   let abs_max = Gen.map (Array.map ~f:Float.abs) (Gen.of_array data) |> Column.max |> Array.fold ~f:((+.)) ~init:0.0 in
-  let inc = match inc with Some inc -> inc | None -> max 0.01 (abs_max/.100.) in
+  let inc = match inc with Some inc -> inc | None -> (abs_max/.200.) in
+  if inc = 0.0 then failwith("data has no mins or maxes") else
   let widths = Array.map2_exn maxes mins
       ~f:(fun maxx minx -> Float.abs (maxx -. minx)) in
   let lens = Array.map widths

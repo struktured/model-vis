@@ -98,7 +98,7 @@ let create
   plvpor 0.1 0.9 0.1 0.9;
 
   let module N = Normalized_box in
-  let box = N.of_world ~padding:1.25 ~xmin ~xmax ~ymin ~ymax ~zmin ~zmax in
+  let box = N.of_world ~padding:1.25 ?alt ~xmin ~xmax ~ymin ~ymax ~zmin ~zmax in
   N.plwall ?alt ?az box;
 
   plpsty 0;
@@ -132,6 +132,8 @@ let for_each_feature
     ?tag
     ?title
     ?ns
+    ?alt
+    ?az
     ~(output:F.t)
     ?(stddev:F.t option)
     (data_stream:Data_stream.t) =
@@ -140,7 +142,7 @@ let for_each_feature
     Array.iter
       ~f:(fun feature1 -> Array.iter ~f:(fun feature2 ->
         if (feature1 = feature2) then () else
-        create ?ns ?fname:None ?tag ~feature1 ~feature2 ?dist ?interp ?inc ?device
+        create ?alt ?az ?ns ?fname:None ?tag ~feature1 ~feature2 ?dist ?interp ?inc ?device
           ?title ~output ?stddev (Data_stream.of_array data))
           all_but_outputs)
       all_but_outputs;

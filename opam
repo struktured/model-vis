@@ -26,6 +26,6 @@ depends: [
   "core" "containers" "plplot" "gen" "oml" "calendar" "ppx_deriving"
 ]
 
-deopts: [
+depopts: [
   "gpr"
 ]
