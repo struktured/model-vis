@@ -33,4 +33,4 @@ In the case of streams, the models are integrated into the process to provide ou
 moment only the gaussian process regression model is supported, but the intention is 
 to add tensorflow and oml to the list.
 
-Please view the examples package, which generates a surface plot of the squared sum of two gaussianly distributed values.
+Please view the examples package for more details, which generates a surface plot of the squared sum of two gaussianly distributed values.
