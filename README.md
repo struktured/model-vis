@@ -14,9 +14,9 @@ with little to no tuning parameters required.
 
 ## Installation
 
-Clone master and from the working directory run
+Clone the repository and from the working directory run
 
-```opam pin add .```
+```opam pin -y add .```
 
 ## Usage
 
