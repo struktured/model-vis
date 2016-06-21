@@ -1,14 +1,16 @@
 # model-vis
-Tooling to visualize outputs of data models, in OCaml
+Tooling to visualize outputs of data models, in OCaml.
+
+![img](./images/two-sqr-gauss-surf.X-vs-Y-vs-Z.png)
 
 ## Introduction
 This library is a very early prototype to ease visualization of models trained from data, in OCaml. 
 It aims to automatically generate good plots for your models given their specific features and outputs, 
-with little to no tuning parameters required. 
+with little to no tuning parameters required.
 
 ## Requirements
  - plplot
- - oml 
+ - oml
  - gpr (optional, for plotting integration)
 
 

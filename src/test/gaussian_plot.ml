@@ -4,7 +4,7 @@ open Core.Std
 let n0_gen = Statistics.Sampling.normal ~mean:(-1.0) ~std:1.0 ()
 let n1_gen = Statistics.Sampling.normal ~mean:1.0 ~std:1.0 ()
 let sum_sqr () = let x = n0_gen() in let y = n1_gen() in [|x;y;x**2.0+.y**2.0|]
-let default_device = `qtwidget
+let default_device = `png
 let defaul_trials = 500
 module XY =
   struct
