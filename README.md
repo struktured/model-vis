@@ -29,7 +29,7 @@ safely within the typed frame.
 Some default generators are provided which will sample reasonable values base on 
 user declared ranges or sets of points. 
 
-In the case of streams, the models are integrated into the process to provide output values. At the 
+In the case where only test data is given, the models are integrated into the process to provide output values. At the 
 moment only the gaussian process regression model is supported, but the intention is 
 to add tensorflow and oml to the list.
 
